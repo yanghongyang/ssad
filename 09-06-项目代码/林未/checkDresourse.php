@@ -1,4 +1,7 @@
 <?php
+//$uid = $_POST['downloader'];
+
+$uid = 2;
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
@@ -10,7 +13,7 @@ if(mysqli_connect_errno()){
 mysqli_set_charset($con,'utf8');
 mysqli_select_db($con, "test");
 
-$sqlcheck = ("select * from certification;" );
+$sqlcheck = ("select url as DresourceURL, title, paper.date as time, cited as citedNum from download, achievement, paper where resource = achievement.id and achievement.id = paper.id and downloader = '$uid';" );
 $runcheck = mysqli_query($con, $sqlcheck);
 $data = array();
 while ($row = mysqli_fetch_assoc($runcheck)) {

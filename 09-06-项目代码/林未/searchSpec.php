@@ -1,16 +1,19 @@
 <?php
+//$sname = $_POST['specName'];
+
+$sname = "赵迪";
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
 if(mysqli_connect_errno()){
-    echo "数据库连接失败"; //数据库连接失败
+    echo 3; //数据库连接失败
     $con=null;
     exit;
 }
 mysqli_set_charset($con,'utf8');
 mysqli_select_db($con, "test");
 
-$sqlcheck = ("select * from certification;" );
+$sqlcheck = ("select id as specID, name as specName, affiliation as institute from specialist where name = '$sname';" );
 $runcheck = mysqli_query($con, $sqlcheck);
 $data = array();
 while ($row = mysqli_fetch_assoc($runcheck)) {
