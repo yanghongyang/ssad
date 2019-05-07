@@ -13,7 +13,7 @@ if(mysqli_connect_errno()){
 mysqli_set_charset($con,'utf8');
 mysqli_select_db($con, "test");
 
-$sqlcheck = ("select nickname, email, profile, balance, avator from user where id = '$uid';" );
+$sqlcheck = ("select nickname, email, profile, islogin, balance, avator, type, expert from user where id = '$uid';" );
 $runcheck = mysqli_query($con, $sqlcheck);
 $data = array();
 while ($row = mysqli_fetch_assoc($runcheck)) {
