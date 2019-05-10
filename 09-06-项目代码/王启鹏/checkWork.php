@@ -6,7 +6,7 @@ $UID=1;
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
 if(mysqli_connect_errno()){
-    echo 3; //数据库连接失败
+    echo "数据库连接失败"; //数据库连接失败
     $con=null;
     exit;
 }
@@ -14,7 +14,7 @@ mysqli_set_charset($con,'utf8');
 mysqli_select_db($con, "test");
 
 $time=date('Y-m-d H:i:s', time());
-$checkSQL=("select title, abstract, source1, source2, source3, source4, time, cited, keyword, doi, expectlist from achievement, paper ".
+$checkSQL=("select title, abstract, source1, source2, source3, source4, time, cited, keyword, doi from achievement, paper ".
     "where achievement.id=paper.id and achievement.id='$PID'");
 $insertSQL=("insert into browse(viewer, resource, time) values('$UID', '$PID', '$time')");
 $runCheck=mysqli_query($con, $checkSQL);
