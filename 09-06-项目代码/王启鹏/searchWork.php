@@ -2,12 +2,12 @@
 //$contents=$_POST['contents'];
 //$UID=$_POST['userID'];
 
-$contents="contents";
+$contents="KNN";
 $UID=1;
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
 if(mysqli_connect_errno()){
-    echo 3; //数据库连接失败
+    echo "连接失败"; //数据库连接失败
     $con=null;
     exit;
 }
@@ -20,6 +20,7 @@ $searchSQL=("select achievement.id, title, abstract, source1, source2, source3, 
 $insertSQL=("insert into search(searcher, term, time) values('$UID', '$contents', '$time')");
 $runSerach = mysqli_query($con, $searchSQL);
 $runInsert = mysqli_query($con, $insertSQL);
+//后面这部分可以去掉
 $data = array();
 while ($row = mysqli_fetch_assoc($runSerach)) {
     $data[] = $row;

@@ -3,22 +3,24 @@
 //$UID=$_POST['userID'];
 //$specName=$_POST['specName'];
 $UID = 1;
-$specName="test";
+$specName="李红裔";
 $con = @new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
 if (mysqli_connect_errno()) {
-    echo 3; //数据库连接失败
+    echo "连接失败"; //数据库连接失败
     $con = null;
     exit;
 }
+
 mysqli_set_charset($con, 'utf8');
 mysqli_select_db($con, "test");
+//paper.ID as paperID, title, paper.date as 'time', cited as citedNum
+$sql=("select paper.id as paperID, title, paper.date as 'time', cited as citedNum from achievement, specialist, specialist_achievement, paper ".
+    "where achievement.id=specialist_achievement.aid and specialist.id=specialist_achievement.sid and paper.id=achievement.id");
 
-$sql=("select paper.ID as paperID, title, paper.date as time, cited as citedNum from achievement, specialist_achievement, specialist ".
-    "where achievement=specialist_achievement.aid and specialist.id=specialist_achievement.sid and specialist.name='$specName'");
 $runSQL=mysqli_query($con, $sql);
-$data = array();
-while ($row = mysqli_fetch_assoc($runCheck)) {
+$data=array();
+while ($row = mysqli_fetch_assoc($runSQL)) {
     $data[] = $row;
 }
 $json = json_encode($data);
