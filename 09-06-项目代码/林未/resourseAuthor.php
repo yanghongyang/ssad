@@ -1,7 +1,7 @@
-<?php
-//$pid = $_POST['paperID'];
+﻿<?php
+$pid = $_POST['paperID'];
 
-$pid = 1;
+//$pid = 1;
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

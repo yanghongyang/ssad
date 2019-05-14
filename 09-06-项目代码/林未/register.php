@@ -1,13 +1,13 @@
-<?php
-//$uname = $_POST['nickname'];
-//$pro = $_POST['profile'];
-//$ema = $_POST['email'];
-//$pass = $_POST['password'];
+﻿<?php
+$uname = $_POST['nickname'];
+$pro = $_POST['profile'];
+$ema = $_POST['email'];
+$pass = $_POST['password'];
 
-$uname = "abc";
-$pro = "洪洋大小姐最棒";
-$ema = "126@buaa.edu.cn";
-$pass = "123456";
+//$uname = "abc";
+//$pro = "洪洋大小姐最棒";
+//$ema = "126@buaa.edu.cn";
+//$pass = "123456";
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

@@ -1,9 +1,9 @@
-<?php
-//$cid = $_POST['CID'];
-//$uid = $_POST['userID'];
+﻿<?php
+$cid = $_POST['CID'];
+$uid = $_POST['userID'];
 
-$cid = 2;
-$uid = 3;
+//$cid = 2;
+//$uid = 3;
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

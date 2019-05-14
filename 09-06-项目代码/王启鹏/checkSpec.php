@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 
-//$PID=$_POST['SID'];
-//$UID=$_POST['UID'];
-$SID = 1;
-$UID = 1;
+$PID=$_POST['SID'];
+$UID=$_POST['UID'];
+//$SID = 1;
+//$UID = 1;
 $con = @new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
 if (mysqli_connect_errno()) {

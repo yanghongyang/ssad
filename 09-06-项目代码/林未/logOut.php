@@ -1,7 +1,7 @@
-<?php
-//$uid = $_POST['userId'];
+﻿<?php
+$uid = $_POST['userId'];
 
-$uid = 4;
+//$uid = 4;
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

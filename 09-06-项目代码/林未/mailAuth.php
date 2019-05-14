@@ -1,9 +1,9 @@
-<?php
-//$uid = $_POST['userID'];
-//$ema = $_POST['email'];
+﻿<?php
+$uid = $_POST['userID'];
+$ema = $_POST['email'];
 
-$uid = 6;
-$ema = "123456@buaa.edu.cn";
+//$uid = 6;
+//$ema = "123456@buaa.edu.cn";
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

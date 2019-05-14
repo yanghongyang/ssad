@@ -1,9 +1,9 @@
-<?php
-//$uname = $_POST['userName'];
-//$pass = $_POST['newPwd'];
+﻿<?php
+$uname = $_POST['userName'];
+$pass = $_POST['newPwd'];
 
-$uname = "abc";
-$pass = "hhhhh";
+//$uname = "abc";
+//$pass = "hhhhh";
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

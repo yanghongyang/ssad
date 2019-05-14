@@ -1,7 +1,7 @@
-<?php
-//$sname = $_POST['specName'];
+﻿<?php
+$sname = $_POST['specName'];
 
-$sname = "赵迪";
+//$sname = "赵迪";
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

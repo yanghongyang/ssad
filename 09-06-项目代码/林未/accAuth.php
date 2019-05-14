@@ -1,7 +1,7 @@
-<?php
-//$id = $_POST['id'];
+﻿<?php
+$id = $_POST['id'];
 
-$id = 1;
+//$id = 1;
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

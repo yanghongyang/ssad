@@ -1,11 +1,11 @@
-<?php
-//$uid = $_POST['userId'];
-//$con = $_POST['content'];
-//$pid = $_POST['paperID'];
+﻿<?php
+$uid = $_POST['userId'];
+$con = $_POST['content'];
+$pid = $_POST['paperID'];
 
-$uid = 3;
-$cont = "好嗨哟！";
-$pid = 1;
+//$uid = 3;
+//$cont = "好嗨哟！";
+//$pid = 1;
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误

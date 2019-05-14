@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 
-//$UID=$_POST['userID'];
-//$specName=$_POST['specName'];
-$UID = 1;
-$specName="李红裔";
+$UID=$_POST['userID'];
+$specName=$_POST['specName'];
+//$UID = 1;
+//$specName="李红裔";
 $con = @new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
 if (mysqli_connect_errno()) {
