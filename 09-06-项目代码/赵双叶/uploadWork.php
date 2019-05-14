@@ -27,7 +27,7 @@ $DOI= "addfas";
 $name = password_hash($DOI,PASSWORD_DEFAULT).$_FILES["file"]["name"];
 
 function trimall($str){
-    $qian=array(" ","　","\t","\n","\r","\\");
+    $qian=array(" ","　","\t","\n","\r","\\","/");
     return str_replace($qian, '', $str);
 }
 $name = trimall($name);
