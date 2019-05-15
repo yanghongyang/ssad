@@ -4,8 +4,18 @@
 
 //$userID=$_POST["userID"];
 $userID = 1;
-$name= crypt($_POST["userID"]);
+
+//对于doi加密作为pdf命名
+$name = password_hash($_POST["userID"],PASSWORD_DEFAULT);
+
+function trimall($str){
+    $qian=array(" ","　","\t","\n","\r","\\","/");
+    return str_replace($qian, '', $str);
+}
+$name = trimall($name);
+
 $text=$name.'.png';
+
 
 if($_FILES["file"]["error"])
 {
@@ -17,7 +27,6 @@ else
     //没有出错
     //加限制条件
     //判断上传文件类型为png或jpg且大小不超过1024000B
-    $last=explode('.',$_FILES["file"][""]);
 
     if(($_FILES["file"]["type"]=="image/png"||$_FILES["file"]["type"]=="image/jpeg")&&$_FILES["file"]["size"]<1024000)
     {
@@ -35,12 +44,10 @@ else
         mysqli_query($con,"UPDATE user SET avator= '$image_url'WHERE id='$userID'");
         mysqli_close($con);
 
-        header("location:test.html");
         return 1;
     }
     else
     {
-        header("location:test.html");
         echo"文件类型不对";
         return 0;
     }
