@@ -6,21 +6,31 @@ $uid = $_POST['userId'];
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
 if(mysqli_connect_errno()){
-    echo 2; //数据库连接失败
+    echo 3; //数据库连接失败
     $con=null;
     exit;
 }
 mysqli_set_charset($con,'utf8');
 mysqli_select_db($con, "test");
 
-$sqlcheck = ("update user set type = 0 where id = '$uid';" );
+$sqlcheck = ("select islogin from user where id = '$uid';" );
 $runcheck = mysqli_query($con, $sqlcheck);
-if($runcheck == TRUE)
+$resultcheck = mysqli_fetch_array($runcheck);
+if($resultcheck[0] == 0)
 {
-    echo 0; //退出登录成功
+    echo 1; //该用户未登录
 }
 else
 {
-    echo 1; //修改数据库失败
+    $sql1 = ("update user set islogin = 0 where id = '$uid';" );
+    $run1 = mysqli_query($con, $sql1);
+    if($run1 == TRUE)
+    {
+        echo 0; //退出登录成功
+    }
+    else
+    {
+        echo 2; //修改数据库字段失败
+    }
 }
 ?>
