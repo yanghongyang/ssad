@@ -40,6 +40,7 @@ for ($i=0; $i<$len/2; $i++){
         }
     }
 }
+array_multisort(array_column($result,'coopNum'),SORT_DESC,$result);
 //var_dump($result);
 $json = json_encode($data);
 echo $json;
