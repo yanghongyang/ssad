@@ -1,9 +1,9 @@
 <?php
 
-$SID=$_POST['SID'];
-$UID=$_POST['UID'];
+//$SID=$_POST['SID'];
+//$UID=$_POST['UID'];
 
-// $SID=2;
+$SID=3;
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
@@ -110,8 +110,8 @@ if($runSQL){
 }
 
 $json = json_encode($data);
-echo($json);
-//var_dump($json);
+//echo($json);
+var_dump($json);
 //echo($json);
 
 //$utf8 = @preg_replace("/\\\u([0-9a-f]{4})/ie", "iconv('UTF-16BE', 'UTF-8', pack('H4','\\1'))", $json);
