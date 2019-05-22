@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>vue-demo</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    
+    
+         <!-- 引入组件库 -->
+      <script src="https://unpkg.com/vue/dist/vue.js"></script>
+      <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+      <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+      <link href="a.css" rel="stylesheet" type="text/css"/>
+  </head>
+     
+  <body>
+      <div id="app">
+
+
+        <el-menu
+            :default-active="activeIndex1"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#CAE1FF"           
+            type="flex" justify="center">
+        <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
+            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goSearch">资源检索</el-menu-item>
+        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">学者频道</el-menu-item>
+        <!--<el-image src="./img/logo_top.png" style="margin-top: 5px;margin-bottom: 5px"></el-image>-->
+        <!--
+        <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">    
+            <el-select v-model="select" slot="prepend" >
+            <el-option label="专家" value="1"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
+        </el-input>-->
+        <!--用户!-->
+        <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+          <span class="el-dropdown-link" >
+            <el-image
+                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                    :src="person_url"></el-image>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown" >
+                <el-dropdown-item command="a">个人中心</el-dropdown-item>
+                <el-dropdown-item command="b">退出</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
+    </el-menu>
+        
+        <el-container style="height: 100%; border: 1px solid #eee">
+            <el-aside width="250px" style="background-color: rgb(238, 241, 246)">
+                <el-menu>
+                  <el-submenu index="1">
+                    <template slot="title" >个人信息</template>
+                    <el-menu-item-group>
+                      <el-menu-item index="1-1" @click.native="index">查看个人信息</el-menu-item>
+                      <el-menu-item index="1-2" @click.native="change_self_info">修改个人信息</el-menu-item>
+                    </el-menu-item-group>
+                  </el-submenu>
+                  <el-submenu index="2">
+                    <template slot="title" style="text-align: left">历史记录</template>
+                    <el-menu-item-group>
+                      <el-menu-item index="2-1" @click.native="download_history">下载记录</el-menu-item>
+                      <el-menu-item index="2-2" @click.native="browse_history">浏览记录</el-menu-item>
+                      <el-menu-item index="2-3" @click.native="comment_history">评论记录</el-menu-item>
+                    </el-menu-item-group>               
+                    </el-submenu>
+                  </el-submenu>
+                </el-menu>
+              </el-aside>
+            
+            <el-container>
+                <el-header style=" margin-left :100px;margin-top: 30px;margin-bottom: 20px; text-align: left; font-size: 20px">
+                    
+                    评论记录
+                  </el-header>
+              
+              <el-main>
+                <el-table :data="tableData">
+                  <el-table-column prop="time" label="时间" >
+                  </el-table-column>
+                  <el-table-column prop="content" label="评论内容" >
+                  </el-table-column>
+                  <el-table-column prop="paperName" label="科技成果名称">
+                  </el-table-column>
+                </el-table>
+              </el-main>
+            </el-container>
+          </el-container>
+    </div>
+    <!-- built files will be auto injected -->
+    <script>
+        var Main = {
+            data() {
+              
+              return {
+                tableData: []
+              }
+              
+            },
+
+
+          created () {
+          this.getList()
+          },
+
+
+          methods : {
+            index(){
+              window.location.href = "index.html";
+            },
+            change_self_info(){
+              window.location.href = "change_self_info.html";
+            },
+            comment_history(){
+              window.location.href = "comment_history.html";
+            },
+            download_history(){
+              window.location.href = "download_history.html";
+            },
+            browse_history(){
+              window.location.href = "browse_history.html";
+            },
+
+
+            
+          //  获取数据
+            getList () {
+              this.$http.post('checkMyComment.php',{userID:5},{emulateJSON:true}).then(function(res){
+                    this.tableData = res.body ;
+                   //alert(res.body);
+                   //console.log(res.body);
+                },function(res){
+                    console.log(res.status);
+                    this.$message('请求页面失败');
+                });
+
+              }
+
+          },
+}
+
+
+
+var Ctor = Vue.extend(Main)
+new Ctor().$mount('#app')
+      </script>
+  </body>
+
+  
+  
+  
+
+</html>

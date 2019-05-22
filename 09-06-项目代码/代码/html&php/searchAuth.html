@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!--<link rel="stylesheet" href="css/works.css" type="text/css">-->
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
+    <title>专家检索</title>
+</head>
+<body style="margin: 0px;height: 100%;" >
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui@2.8.2/lib/index.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<div id="app" style="height: 100%;">
+    <!--导航栏-->
+    <el-menu
+            :default-active="activeIndex1"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#CAE1FF"           
+            type="flex" justify="center">
+        <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
+            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goSearch">资源检索</el-menu-item>
+        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">学者频道</el-menu-item>
+        <!--<el-image src="./img/logo_top.png" style="margin-top: 5px;margin-bottom: 5px"></el-image>-->
+        <!--
+        <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">    
+            <el-select v-model="select" slot="prepend" >
+            <el-option label="专家" value="1"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
+        </el-input>-->
+        <!--用户!-->
+        <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+          <span class="el-dropdown-link" >
+            <el-image
+                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                    :src="person_url"></el-image>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown" >
+                <el-dropdown-item command="a">个人中心</el-dropdown-item>
+                <el-dropdown-item command="b">退出</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
+    </el-menu>
+    <div id="main_search" style="width:100%; height:100%;">
+        <div style="height: 7%"></div>
+        <div style="width: 55%;margin: 0 auto;height:10%">
+            <el-row :gutter="10" style="display: flex;align-items: center;">
+                <el-col :span="3">
+                    <div style="height:100%;">
+                        <el-image src="./img/logo_top.png" style="height:100%;"  ></el-image>
+                    </div>
+                </el-col>
+                <el-col :span="21">
+                    <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 100%; top: 10px;min-width: 500px;margin-left: 8px">    
+                        <el-select v-model="select" slot="prepend" >
+                        <el-option label="专家" value="1"></el-option>
+                        </el-select>
+                        <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
+                    </el-input>
+                </el-col>
+            </el-row>
+        </div>
+        <div style="height: 1%"></div>
+        <div style="width:50%; margin: 0 auto">
+            <template>
+                <div>
+
+                    <div>找到约{{info.length}}条相关结果:</div>
+                    
+                    <el-divider></el-divider>
+                    
+                    <div v-for="(value,index) in info.slice((currentPage- 1)*pagesize,currentPage*pagesize)" >
+                        <div>
+                            <el-row :gutter="20" style="display: flex;align-items: center;">
+                                <el-col :span="4">
+                                    <el-image style="border-radius:50%;overflow: hidden;" :fit="fit" src="./img/default_auth.png"></el-image>
+                                </el-col>
+                                <el-col :span="20">
+                                    <el-row></el-row>
+                                    <el-row  style="display: flex;align-items: center;" :gutter="5">
+                                        <el-col :span="3" >
+                                            <el-link type="primary" v-html="value.specName"  @click="checkDet(value.specID)" style="font-size: 18px;font-weight: 400;"></el-link>
+                                        </el-col >
+                                        <el-col :span="21" :offset="1">{{value.institute}}</el-col>
+                                    </el-row>
+                                    <el-row style="color: #666;font-size:14px"> 
+                                        发表文章：40
+                                    </el-row>
+                                </el-col>
+                            </el-row>
+                        </div>
+                        <el-divider></el-divider>                      
+                    </div>
+                    
+                    <el-pagination
+                        @current-change="current_change"
+                        layout="prev, pager, next"
+                        :page-size="pagesize"    
+                         
+                        :current-page.sync="currentPage" 
+                        :total="info.length"> 
+                    </el-pagination>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+<div id="sys-loading" class=""><div class="spinner">
+        <div class="loader-inner line-scale-pulse-out-rapid">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        </div></div>
+</body>
+<style>
+    mark {
+        color:red;
+        background-color: white;
+        font-weight: bold;
+    }
+    body::-webkit-scrollbar {
+        width: 0px;
+    }
+    .el-select .el-input {
+        width: 130px;
+    }
+    .input-with-select .el-input-group__prepend {
+        background-color: #fff;
+    }
+    .el-dropdown-link {
+        cursor: pointer;
+        color: #409EFF;
+    }
+    .el-icon-arrow-down {
+        font-size: 0px;
+    }
+    .el-row {
+        margin-bottom: 20px;
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+        background: #d3dce6;
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        min-height: 36px;
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+    .allsources{
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        color:#3A66C8;
+    }
+</style>
+<script>
+    document.onreadystatechange = subSomething;
+    function subSomething() {
+        //当页面加载状态
+        if (document.readyState == "complete") {
+            //延迟一秒关闭loading
+            $('#sys-loading').delay(200).hide(0);
+            $('.spinner').delay(200).fadeOut('slow');
+        }
+    }
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            activeIndex1: '3',
+            person_url: './img/person_def.png',
+            testMessage:[],
+            searchContent:'',
+            currentPage:1,
+            info:[],
+            pagesize:5,
+            input3: '',
+            select: "1",
+            fit:"fill",
+            isRouterAlive:true
+        },
+        created() {          
+            this.getInfo();
+        },
+        methods:{
+            createPerson: function(){
+                this.people.push(this.newPerson);
+                // 添加完newPerson对象后，重置newPerson对象
+                this.newPerson = {name: '', age: 0, sex: 'Male'}
+            },
+            Reload_index: function(){
+                window.location.href="index.html";
+            },
+            getInfo(){
+                var u=decodeURI(location.search);
+                if(u.indexOf("?")>-1){
+                    var paraStr=u.split("?")[1];
+                    this.searchContent=paraStr.split("=")[1].trim()
+                    this.$http.post('searchSpec.php',{specName:this.searchContent},{emulateJSON:true}).then(       
+                        function(res){
+                            this.info=res.body;
+                            //this.$alert(res.body)
+                        },
+                        function(res){console.log(res.status);}
+                    );
+                }else{
+                    this.$alert('没有搜索内容', '警告', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            window.location.href="index.html";
+                        }
+                    });
+                }
+                this.input3=this.searchContent;
+            },
+            handleSelect: function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleCommand: function(command) {
+                this.$message('click on item ' + command);
+            },
+            handleClick1: function(tab, event) {
+                console.log(tab, event);
+            },
+            handleClick2: function(tab, event) {
+                console.log(tab, event);
+            },
+            goSearch: function(){
+                //window.location.href="index.html";
+                u="search.html?id=2&content="+this.searchContent;
+                window.location.href=encodeURI(u); 
+            },
+            htmlEscape(str) {
+                str=str.replace(/&lt;/g,"<")
+                str=str.replace(/&gt;/g,">")
+                return str
+            },
+            current_change:function(currentPage){  //改变当前页
+                this.currentPage = currentPage
+            },
+            checkDet(index){
+                //console.log(index)
+                var i="1"
+                u="expert.html?UID="+i+"&SID="+index;
+                window.location.href=encodeURI(u); 
+            },
+            search:function(){
+                //发送get请求
+                if(this.input3.trim()=="")
+                {
+                    this.$message('输入内容为空');
+                    return;
+                }
+                this.searchContent=this.input3.trim();
+                u="searchAuth.html?content="+this.input3.trim();
+                history.replaceState({status: 0}, "", u);
+                this.getInfo()
+            }
+        }
+    })
+</script>
+
+</html>

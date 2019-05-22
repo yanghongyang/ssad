@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="../css/works.css" type="text/css">
+</head>
+<body style="margin: 0px;">
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.8.2/lib/index.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<div id="app">
+    <!--导航栏-->
+    <el-menu
+            :default-active="activeIndex1"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#545c64"
+            text-color="#fff"
+            type="flex" justify="center"
+            active-text-color="#ffd04b">
+        <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
+            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=false">主页</el-menu-item>
+        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=true">学者频道</el-menu-item>
+        <!--用户!-->
+        <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+          <span class="el-dropdown-link" >
+            <el-image
+                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                    :src="person_url"></el-image>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown" >
+                <el-dropdown-item command="a">{{user_op1}}</el-dropdown-item>
+                <el-dropdown-item command="b">退出</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
+    </el-menu>
+    <el-row>
+        <el-col :span="1"><div class="grid-content"></div></el-col>
+        <!--主体内容-->
+        <el-col :span="16">
+            <div class="grid-content">
+                <!--标题-->
+                <div style="line-height: 2.5; font-size: 30px; margin-left: 45px; font-weight: bold; font-family: Arial;">
+                    <el-link type="primary" style=" color:#3A66C8;" ><h2>{{title}}</h2></el-link>
+                </div>
+                <!--来源、收藏-->
+                <div style="line-height: 1.5; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
+                    <span>来自 {{source}}</span>
+                    <!--<span>&nbsp;|&nbsp;</span>
+                    <span>
+                        <a class="el-icon-star-off">
+                            收藏 {{clectCnt}}
+                        </a>
+                        &nbsp; &nbsp;阅读量 {{readCnt}}
+                    </span>-->
+                </div>
+                <!--详情-->
+                <!--作者-->
+                <div style="line-height: 1.7; margin-top:25px; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
+                    <el-col :span="2">
+                        作者：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </el-col>
+                    <el-col :span="22">
+                        <a :href="'./expert.html?UID='+userID+'&SID='+authors['sid']" target="_blank" style=" color:#3A66C8; text-decoration: none" v-for="authors in author">
+                            {{authors.name}}&nbsp
+                        </a>
+                    </el-col>
+                </div>
+                <!--摘要-->
+                <div style="line-height: 1.7; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
+                    <span>
+                        <el-col :span="2"><div>摘要：</div></el-col>
+                        <el-col :span="22"><div>{{abstract}}</div></el-col>
+                    </span>
+                </div>
+                <!--关键词-->
+                <div style="line-height: 1.7; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
+                    <span>
+                        <el-col :span="2"><div>关键词：</div></el-col>
+
+                            <el-col :span="22">
+                                <div>
+                                    <el-link type="primary" style=" color:#3A66C8;"  @click="">
+                                    {{keywords}}
+                                    </el-link>
+                                </div>
+                            </el-col>
+                    </span>
+                </div>
+                <!--DOI-->
+                <div style="line-height: 1.7; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
+                    <span>
+                        <el-col :span="2"><div>DOI：</div></el-col>
+                        <el-col :span="22"><div>{{doi}}</div></el-col>
+                    </span>
+                </div>
+                <!--被引量-->
+                <div style="line-height: 1.7; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
+                    <span>
+                        <el-col :span="2"><div>被引量：</div></el-col>
+                            <el-col :span="22"><div><el-link type="primary" style=" color:#3A66C8;">{{citedNum}}</el-link></div></el-col>
+                        </a>
+                    </span>
+                </div>
+                <!--收藏、引用、分享-->
+                <!--
+                <div style=" font-size: 15px; margin-left: 45px;  font-family: Arial;">
+                    <el-col :span="3"><el-button type="primary" style="margin-top:10px; width: 90%; " round><> 引用</el-button></el-col>
+                    <el-col :span="3">
+                        <el-button type="primary" style="margin-top:10px; width: 90%; " round class="el-icon-share" id = "share" onclick = "shareToTencent()">
+                            分享
+                        </el-button>
+                    </el-col>
+                </div>
+                -->
+                <!--全部来源、全文下载-->
+                <div style="margin-left: 45px; font-weight: bold; font-family: Arial;">
+                    <el-col :span="24" style="margin-top: 30px;">
+                        <el-tabs type="border-card" v-model="activeName1" @tab-click="handleClick1">
+                            <el-tab-pane label="全部来源" name="allsource">
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">Springer</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">The Lancet</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">ResearchGate</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">EBSCO</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">360 Link</el-link>
+                                </el-col>
+                            </el-tab-pane>
+                            <!--
+                            <el-tab-pane label="全文下载" name="download">
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">The Lancet</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">ResearchGate</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">EBSCO</el-link>
+                                </el-col>
+                            </el-tab-pane>
+                            -->
+                        </el-tabs>
+                    </el-col>
+                </div>
+                <!--相似文献、引用文献-->
+                <div style="margin-left: 45px; font-weight: bold; font-family: Arial;">
+                    <el-col :span="24" style="margin-top: 30px;">
+                        <el-tabs v-model="activeName2" @tab-click="handleClick2">
+                            <el-tab-pane label="相似文献" name="similar">
+                                <div class="in_conternt_reslist">
+                                    <div class="result" style="line-height: 1.5; font-family: Arial;"
+                                             v-for="simi in similarList.slice((currentPage-1)*pageSize,currentPage*pageSize)">
+                                            <div class="res_con">
+                                                <a
+                                                        :href="'./works.html?PID='+simi['id']"
+                                                        target="_blank">{{simi["title"]}}</a>
+                                                <div class="res_info">
+                                                    <div style="line-height: 1.5; font-size: 8px; color: #999;; font-family: Arial;">
+                                                        <span class="res_year">{{simi["author"]}}</span>
+                                                        <span>
+                                                            <div> {{simi["abstract"]+""}}</div>
+                                                        </span>
+                                                    </div>
+                                                    <div style="line-height: 1.5; font-size: 8px; color: #999;; font-family: Arial;">
+                                                    <span>
+                                                        <span>被引量:&nbsp;</span>
+                                                        <a
+                                                        target="_blank">{{simi["cited"]}}
+                                                        </a>
+                                                    </span>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                            <div class="reqdata" style="display:none"></div>
+                                        </div>
+                                    </div>
+                                <div class="res-pages-wr">
+                                    <el-pagination background layout="prev, pager, next" :total="total" :page-size="pageSize" @current-change="currentChange"
+                                                   style="padding: 10px 0; text-align: center;">
+                                    </el-pagination>
+                                </div>
+                            </el-tab-pane>
+                            <!--
+                            <el-tab-pane label="引用文献" name="cited">
+                                <div style="line-height: 1; font-weight: bold; font-family: Arial;">
+                                    <el-link href="#" style="color:#3A66C8;">{{cited}}</el-link>
+                                </div>
+                            </el-tab-pane>
+                            -->
+                        </el-tabs>
+                    </el-col>
+                </div>
+            </div>
+        </el-col>
+        <el-col :span="6">
+            <div class="grid-content bg-purple">
+
+            </div></el-col>
+        <el-col :span="1">
+            <div class="grid-content">
+
+            </div>
+        </el-col>
+    </el-row>
+</div>
+</body>
+<style>
+    .el-select .el-input {
+        width: 130px;
+    }
+    .input-with-select .el-input-group__prepend {
+        background-color: #fff;
+    }
+    .el-dropdown-link {
+        cursor: pointer;
+        color: #409EFF;
+    }
+    .el-icon-arrow-down {
+        font-size: 12px;
+    }
+    .el-row {
+        margin-bottom: 20px;
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+        background: #d3dce6;
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        min-height: 36px;
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+    .allsources{
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        color:#3A66C8;
+    }
+</style>
+
+<script>
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r =  window.location.search.substr(1).match(reg);
+        if (r != null)
+            return unescape(r[2]);
+        return 1;
+    }
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            title:'',
+            sourceList:[],
+            activeIndex: '1',
+            activeIndex2: '1',
+            activeIndex1: '2',
+            input1: '',
+            input2: '',
+            input3: '',
+            select: '',
+            fits: ['cover'],
+            url: '',
+            clectCnt:'',
+            readCnt:'',
+            authorList:[],
+            abstract:'',
+            citedNum:'',
+            activeName1: 'allsource',
+            activeName2: 'similar',
+            cited:'',
+            paperID: getQueryString("PID"),
+            userID: '1',
+            userName: '林未',
+            keywords:"",
+            source:"",
+            author:[],
+            doi:"",
+            similarList:[],
+            readCnt:"",
+            pageSize: 2,
+            currentPage: 1,
+            total: 0,
+            user_op1:"个人中心",
+            person_url: './img/person_def.png'
+        },
+        methods:{
+            Reload_index: function(){
+                window.location.href="index.html";
+            },
+            createPerson: function(){
+                this.people.push(this.newPerson);
+                // 添加完newPerson对象后，重置newPerson对象
+                this.newPerson = {name: '', age: 0, sex: 'Male'}
+            },
+            deletePerson: function(index){
+                // 删一个数组元素
+                this.people.splice(index,1);
+            },
+            handleSelect: function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleCommand: function(command) {
+                this.$message('click on item ' + command);
+            },
+            handleClick1: function(tab, event) {
+                console.log(tab, event);
+            },
+            handleClick2: function(tab, event) {
+                console.log(tab, event);
+            },
+            //查看论文
+            checkWork: function() {
+                this.$http.post('checkWork.php', { paperID: this.paperID, userID: this.userID }, { emulateJSON: true }).then(function (res) {
+                    console.log(this.paperID)
+                    console.log(res.body);
+                    var workInfo = res.body;
+                    this.title = workInfo[0]["title"];
+                    this.title.trim();
+                    this.abstract = workInfo[0]["abstract"];
+                    this.citedNum = workInfo[0]["cited"];
+                    this.keywords = workInfo[0]["keyword"];
+                    this.doi = workInfo[0]["doi"];
+                    this.source = workInfo[0]["source1"];
+                    this.sourceList = workInfo[0];
+                });
+            },
+            //资源作者
+            checkResourceAuthor: function() {
+                this.$http.post('resourseAuthor.php', { paperID: this.paperID }, { emulateJSON: true }).then(function (res) {
+                    console.log(res.body);
+                    this.authorInfo = res.body;
+                    this.author = res.body;
+                });
+            },
+            //阅读量
+            checkVisit: function() {
+                var caution=false;
+                function setCookie(name,value,expires,path,domain,secure)
+                {
+                    var curCookie=name+"="+escape(value) +
+                            ((expires)?";expires="+expires.toGMTString() : "") +
+                            ((path)?"; path=" + path : "") +
+                            ((domain)? "; domain=" + domain : "") +
+                            ((secure)?";secure" : "")
+                    if(!caution||(name + "=" + escape(value)).length <= 4000)
+                    {
+                        document.cookie = curCookie
+                    }
+                    else if(confirm("Cookie exceeds 4KB and will be cut!"))
+                    {
+                        document.cookie = curCookie
+                    }
+                }
+                function getCookie(name)
+                {
+                    var prefix = name + "="
+                    var cookieStartIndex = document.cookie.indexOf(prefix)
+                    if (cookieStartIndex == -1)
+                    {
+                        return null
+                    }
+                    var cookieEndIndex=document.cookie.indexOf(";",cookieStartIndex+prefix.length)
+                    if(cookieEndIndex == -1)
+                    {
+                        cookieEndIndex = document.cookie.length
+                    }
+                    return unescape(document.cookie.substring(cookieStartIndex+prefix.length,cookieEndIndex))
+                }
+                function deleteCookie(name, path, domain)
+                {
+                    if(getCookie(name))
+                    {
+                        document.cookie = name + "=" +
+                                ((path) ? "; path=" + path : "") +
+                                ((domain) ? "; domain=" + domain : "") +
+                                "; expires=Thu, 01-Jan-70 00:00:01 GMT"
+                    }
+                }
+                function fixDate(date)
+                {
+                    var base=new Date(0)
+                    var skew=base.getTime()
+                    if(skew>0)
+                    {
+                        date.setTime(date.getTime()-skew)
+                    }
+                }
+                var now=new Date()
+                fixDate(now)
+                now.setTime(now.getTime()+365 * 24 * 60 * 60 * 1000)
+                var visits = getCookie("counter")
+                if(!visits)
+                {
+                    visits=1;
+                }
+                else
+                {
+                    visits=parseInt(visits)+1;
+                }
+                setCookie("counter", visits, now)
+                this.readCnt = visits;
+            },
+            //查看相似文献
+            checkSimiWork: function() {
+                this.$http.post('solrMLT.php', { id: this.paperID}, { emulateJSON: true }).then(function (res) {
+                    //alert(res.body);
+                    console.log(res.body);
+                    var workInfo = res.body;
+                    this.similarList = res.body;
+                        this.total = Math.ceil(this.similarList.length / this.pageSize);
+                    //alert(this.total);
+                });
+            },
+            //引用文献
+            //分享到新浪微博
+            shareToSina: function() {
+                var _shareUrl = 'http://v.t.sina.com.cn/share/share.php?&appkey=895033136';     //真实的appkey ，必选参数
+                _shareUrl += '&url='+ encodeURIComponent(_url||document.location);     //参数url设置分享的内容链接|默认当前页location，可选参数
+                _shareUrl += '&title=' + encodeURIComponent(_title||document.title);    //参数title设置分享的标题|默认当前页标题，可选参数
+                _shareUrl += '&source=' + encodeURIComponent(_source||'');
+                _shareUrl += '&sourceUrl=' + encodeURIComponent(_sourceUrl||'');
+                _shareUrl += '&content=' + 'utf-8';   //参数content设置页面编码gb2312|utf-8，可选参数
+                _shareUrl += '&pic=' + encodeURIComponent(_pic||'');  //参数pic设置图片链接|默认为空，可选参数
+                window.open(_shareUrl,'_blank','toolbar=no,menubar=no,scrollbars=no,resizable=1,location=no,status=0,' + 'width=' + _width + ',height=' + _height + ',top=' + (screen.height-_height)/2 + ',left=' + (screen.width-_width)/2);
+            },
+            //分享到腾讯空间
+            shareToTencent: function() {
+                var p = {
+                    url: window.location.href,
+                    showcount: '1',    /*是否显示分享总数,显示：'1'，不显示：'0' */
+                    desc: '',        /*默认分享理由(可选)*/
+                    summary: '还不赶紧点击进来观看',   /*分享摘要(可选)*/
+                    title: '震惊！',    /*分享标题(可选)*/
+                    pics: '',
+                    style: '203',
+                    width: 98,
+                    height: 22,
+                    sites               : ['qzone', 'qq', 'weibo','wechat'], // 启用的站点
+                    disabled            : ['google', 'facebook', 'twitter'], // 禁用的站点
+                    wechatQrcodeTitle   : '微信扫一扫：分享', // 微信二维码提示文字
+                    wechatQrcodeHelper  : '<p>微信里点“发现”，扫一下</p><p>二维码便可将本文分享至朋友圈。</p>',
+                };
+                var s = [];
+                for(var i in p) {
+                    s.push(i + '=' + encodeURIComponent(p[i] || ''));
+                }
+                url = "http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?" + s.join('&');
+                window.open(url);
+            },
+            //分页操作
+            currentChange: function(currentPage){
+                this.currentPage = currentPage;
+            }
+    }
+    });
+    vm.checkWork();
+    vm.checkResourceAuthor();
+    vm.checkVisit();
+    vm.checkSimiWork();
+</script>
+<script type="text/javascript">
+
+</script>
+</html>

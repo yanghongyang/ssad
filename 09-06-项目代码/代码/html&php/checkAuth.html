@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!--<link rel="stylesheet" href="css/works.css" type="text/css">-->
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
+    <title>审核认证</title>
+</head>
+<body style="margin: 0px;height: 100%;"  >
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui@2.8.2/lib/index.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<div id="app" style="height: 100%;">
+    <!--导航栏-->
+    <el-menu
+            :default-active="activeIndex1"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#545c64"
+            text-color="#fff"
+            type="flex" justify="center"
+            active-text-color="#ffd04b">
+        <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
+            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" >主页</el-menu-item>
+        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">学者频道</el-menu-item>
+        <!--用户!-->
+        <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+          <span class="el-dropdown-link" >
+            <el-image
+                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                    :src="person_url"></el-image>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown" >
+                <el-dropdown-item command="a">个人中心</el-dropdown-item>
+                <el-dropdown-item command="b">退出</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
+    </el-menu>
+    <!--main-->
+    <template>
+    <router-view v-if="isRouterAlive">
+    <div id="check_Auth" style="width:90%; height:100%;text-align:center; margin:0 auto">
+        <div style="height: 6%"></div>
+        <div class="deit"style="width:80%;margin:0 auto;text-align:center;height: 100%;">
+                <div>
+                    <el-breadcrumb separator="/">
+                        <el-breadcrumb-item><i class="el-icon-date"></i> 审核专家认证</el-breadcrumb-item>
+                        <el-breadcrumb-item>认证信息</el-breadcrumb-item>
+                    </el-breadcrumb>
+                </div>
+                <div style="height: 2%"></div>
+                <div class="cantainer" style="margin:0 auto;text-align: center">
+                    <el-table style=" margin:0 auto;text-align: center" 
+                    :data="userList.slice((currentPage-1)*pagesize,currentPage*pagesize)"  
+                    >
+                        <el-table-column label="记录号" prop="id"  align="center">    
+                        </el-table-column>
+                        <el-table-column label="用户ID" prop="applicant"  align="center">    
+                        </el-table-column>
+                        <el-table-column label="申请时间" prop="time"  align="center">    
+                        </el-table-column>
+                        <el-table-column label="状态" prop="status"  align="center">    
+                        </el-table-column>    
+                        <el-table-column label="操作"  align="center">
+                            <template slot-scope="scope">
+                                <el-button @click="chkAuth(scope.row.id)" type="text" size="small">操作</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+                <div class="cantainer" style="margin:0 auto;text-align: center;">
+                    <el-pagination
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="currentPage"
+                            :page-sizes="[5, 10, 20, 40]" 
+                            :page-size="pagesize"         
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="userList.length"
+                            style="margin:0 auto;text-align:center;">   
+                    </el-pagination>
+                </div>
+          </div>
+    </div>
+    
+    </router-view>
+    </template>
+    <div id="sys-loading" class=""><div class="spinner">
+    <div class="loader-inner line-scale-pulse-out-rapid">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    </div></div>
+    <el-dialog
+        title="认证信息"
+        :visible.sync="dialogVisible"
+        width="30%"
+        :lock-scroll="false"
+        >
+        <span>
+            <div style="width: 100%">
+                <el-row>
+                    <el-col :span="18" :offset="3">
+                    <el-card shadow="hover">
+                        <div>用户id：{{rzMessage.applicant}}</div>
+                        <div> </div>
+                        <div>身份证号：{{rzMessage.identityCard}}</div>
+                    </el-card>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="8" :offset="3">
+                        <el-card :body-style="{ padding: '0px',height:'175px'}" shadow="hover">
+                            <el-popover
+                                placement="right"
+                                title=""
+                                trigger="hover">
+                                <img :src="rzMessage.identity1" class="image"/>
+                                <img class="image" slot="reference" :src="rzMessage.identity1" :alt="rzMessage.identity1" >
+                            </el-popover>
+                            <div style="padding: 14px;position:absolute;bottom:0;text-align:center;display:block">
+                              <span >证件照正面</span>
+                            </div>
+                        </el-card>
+                    </el-col>
+                    <el-col :span="8" :offset="2">
+                        <el-card :body-style="{ padding: '0px',height:'175px' }" shadow="hover" >
+                            <el-popover
+                                placement="right"
+                                title=""
+                                trigger="hover">
+                                <img :src="rzMessage.identity2" class="image"/>
+                                <img class="image" slot="reference" :src="rzMessage.identity2" :alt="rzMessage.identity1" >
+                            </el-popover>
+                            <div style="padding: 14px;position:absolute;bottom:0;text-align:center;display:block">
+                              <span>证件照背面</span>
+                            </div>
+                        </el-card>
+                    </el-col>
+                </el-row>
+            </div>
+        </span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="accAuth">确 定</el-button>
+        </span>
+    </el-dialog>
+</div>
+</body>
+<style>
+    body::-webkit-scrollbar {
+        width: 0px;
+    }
+    .el-select .el-input {
+        width: 130px;
+    }
+    .input-with-select .el-input-group__prepend {
+        background-color: #fff;
+    }
+    .el-dropdown-link {
+        cursor: pointer;
+        color: #409EFF;
+    }
+    .el-icon-arrow-down {
+        font-size: 0px;
+    }
+    .el-row {
+        margin-bottom: 20px;
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+        background: #d3dce6;
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        min-height: 36px;
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+    .allsources{
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        color:#3A66C8;
+    }
+    .image {
+        width: 100%;
+        display: block;
+    }
+</style>
+<script>
+    document.onreadystatechange = subSomething;
+    function subSomething() {
+        //当页面加载状态
+        if (document.readyState == "complete") {
+            //延迟一秒关闭loading
+            $('#sys-loading').delay(500).hide(0);
+            $('.spinner').delay(500).fadeOut('slow');
+        }
+    }
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            activeIndex1: '2',
+            person_url: './img/person_def.png',
+            currentPage:1,  //初始页
+            pagesize:10,    //每页的数据
+            userList: [],    //存放数据的数组
+            dialogVisible : false,
+            rzMessage :{},
+            checkid :0,
+            isRouterAlive:true
+        },
+        inject:['reload'],
+        created() {
+            this.handleUserList()
+        },
+        provide(){
+            return {
+                reload: this.reload
+            }
+        },
+        methods:{
+            reload(){
+                this.isRouterAlive = false
+                this.handleUserList()
+                this.$nextTick(function(){
+                    this.isRouterAlive = true
+                })
+            },
+            createPerson: function(){
+                this.people.push(this.newPerson);
+                // 添加完newPerson对象后，重置newPerson对象
+                this.newPerson = {name: '', age: 0, sex: 'Male'}
+            },
+            handleSelect: function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleCommand: function(command) {
+                this.$message('click on item ' + command);
+            },
+            handleClick1: function(tab, event) {
+                console.log(tab, event);
+            },
+            handleClick2: function(tab, event) {
+                console.log(tab, event);
+            },
+            Reload_index: function(){
+                window.location.href="index.html";
+            },
+            // 初始页currentPage、初始每页数据数pagesize和数据data
+            handleSizeChange: function (size) {
+                    this.pagesize = size;
+                    //console.log(this.pagesize)  //每页下拉显示数据
+            },
+            handleCurrentChange: function(currentPage){
+                    this.currentPage = currentPage;
+                    //console.log(this.currentPage)  //点击第几页
+            },
+            handleUserList() {
+                this.$http.post('checkAuth.php',{emulateJSON:true}).then(function(res){
+                    this.userList = res.body ;
+                    for(j = 0,len=this.userList.length; j < len; j++) {
+                        if(this.userList[j].state ==1)
+                            this.userList[j].status="已认证";
+                        else
+                            this.userList[j].status="未认证";
+                    }
+                },function(res){
+                    console.log(res.status);
+                    this.$message('请求页面失败');
+                });
+            },
+            chkAuth(id){
+                this.$http.post('checkIdenAuth.php',{id:id},{emulateJSON:true}).then(function(res){
+                    this.rzMessage = res.body[0]  ;
+                    checkid=id;
+                    this.dialogVisible = true ;
+                },function(res){
+                    console.log(res.status);
+                    this.$message('请求页面失败');
+                });
+            },
+            accAuth(){
+                this.$http.post('accAuth.php',{id:checkid},{emulateJSON:true}).then(function(res){
+                    if(res.body==0)
+                        this.$message('操作成功');
+                    else
+                        this.$message('操作失败');
+                    this.reload();
+                    this.dialogVisible = false;
+                },function(res){
+                    console.log(res.status);
+                    this.$message('操作请求失败');
+                })
+            },
+        }
+    });
+
+</script>
+
+</html>

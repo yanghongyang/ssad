@@ -1,0 +1,506 @@
+/* 声明顺序
+Positioning（定位）
+Box model（盒子模型）
+Typographic（排版）
+Visual（视觉效果，如动画颜色等）
+other（其他） */
+
+#expert_page {
+    /* Positioning */
+    position: relative;
+
+    /* Box model */
+    margin: 0 auto;
+    width: 1100px;
+
+    /* Visual */
+    background-color: #fff;
+
+    /* Other */
+    overflow: hidden;
+}
+
+#expert_intro {
+    /* Box model */
+    padding: 32px 0 53px;
+
+    /* Visual */
+    border-bottom: 1px solid #e3e3e3;
+
+    /* Other */
+    overflow: hidden;
+}
+
+#person_image {
+    /* Box model */
+    width: 125px;
+    float: left;
+    margin-right: 35px;
+    margin-left: 5px;
+
+    /* Typographic */
+    text-align: center;
+}
+
+#person_portrait {
+    /* Positioning */
+    position: relative;
+
+    /* Box model */
+    width: 112px;
+    height: 112px;
+    display: inline-block;
+
+    /* Visual */
+    border: 6px solid #fff;
+    box-shadow: 0 1px 6px rgba(0,0,0,.25);
+
+    /* Other */
+    overflow: hidden;
+}
+
+#person_authen {
+    /* Box model */
+    display: inline-block;
+    margin-right: 2px;
+    margin-top: 12px;
+}
+
+#person_info {
+    /* Box model */
+    float: left;
+    width: 555px;
+    margin-right: 30px;
+    margin-top: 10px;
+}
+
+#p_name {
+    /* Box model */
+    margin-bottom: 8px;
+    float: left;
+
+    /* Typographic */
+    font-size: 28px;
+    line-height: 30px;
+
+    /* Visual */
+    color: #333;
+}
+
+#p_volume {
+    /* Box model */
+    margin-top: 10px;
+    margin-left: 20px;
+    float: left;
+
+    /* Typographic */
+    font-size: 14px;
+
+    /* Visual */
+    color: #999;
+}
+
+#p_affiliate {
+    /* Box model */
+    clear: both;
+
+    /* Typographic */
+    font-size: 13px;
+    line-height: 1.54;
+}
+
+#p_ach_wr {
+    /* Box model */
+    width: 355px;
+    display: inline-block;
+    margin: 20px 0 18px;
+    padding: 0;
+    height: 45px;
+
+    /* Other */
+    overflow: hidden;
+    list-style: none;
+}
+
+ .p_ach_item {
+    /* Box model */
+    float: left;
+    margin-right: 10px;
+    width: 78px;
+
+    /* Typographic */
+    font-size: 20px;
+    line-height: 1.54;
+
+    /* Visual */
+    border-right: 1px solid #efefef;
+
+    /* Other */
+    list-style: none;
+ }
+
+ .p_ach_type {
+    /* Box model */
+    margin: 0;
+    padding: 0;
+
+    /* Typographic */
+    font-size: 12px;
+    color: #999;
+ }
+
+ .p_ach_num {
+    /* Box model */
+    margin: 0;
+    padding: 0;
+ }
+
+ .person_editinfo {
+     /* Typographic */
+    line-height: 25px;
+    font-size: 13px;
+ }
+
+ /***************************************************/
+
+#main_content_left {
+    float: left;
+    width: 710px;
+}
+
+#achievement_wr {
+    border-bottom: 1px solid #bfbfbf;
+}
+
+.effectmap_pie {
+    height: 166px;
+    position: relative;
+}
+
+.effectmap_pie p {
+    margin: 0;
+    padding: 0;
+}
+
+.pie_map_wrapper {
+    float: left;
+    margin-top: 33px;
+    height: 115px;
+}
+
+.pie_map_container {
+    position: relative;
+    float: left;
+    margin-right: 60px;
+    width: 100px;
+    height: 100px;
+    z-index: 4;
+    cursor: pointer;
+}
+
+.pieText {
+    position: absolute;
+    z-index: 100;
+    text-align: center;
+    width: 100%;
+    top: 30px;
+    left: 0;
+    height: 40px;
+    color: #666;
+}
+
+.pieMapTotal .number {
+    font-size: 24px;
+    color: #333;
+    height: 40px;
+    line-height: 40px;
+}
+
+.pieMapTotal {
+    width: 130px;
+    text-align: center;
+    float: left;
+    color: #666;
+    font-size: 14px;
+    height: 60px;
+    margin-top: 56px;
+}
+
+.in_content_rtop {
+    height: 32px;
+    line-height: 25px;
+}
+
+.in_content_filter_wr {
+    float: left;
+    /* margin-left: -20px; */
+}
+
+.in_content_filter {
+    position: relative;
+    color: #666;
+    float: left;
+    _width: 98px;
+}
+
+.in_content_filter_wr .filter_sel_default {
+    position: relative;
+    font-size: 0;
+    color: #999;
+    height: 27px;
+    line-height: 27px;
+    cursor: pointer;
+    padding: 0 0 0 20px;
+    background: #fff;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -ms-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.filter_sel_text {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 13px;
+    overflow: hidden;
+    *vertical-align: top;
+    word-wrap: normal;
+}
+
+.in_content_filter .el-icon-arrow-down {
+    margin-top: 7px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: top;
+    font-style: normal;
+    overflow: hidden;
+    font-size: 13px;
+}
+
+#articlelist_wr {
+    width: 100%;
+    min-height: 300px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+.in_conternt_reslist {
+    clear: both;
+}
+
+.res_t {
+    font-size: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.res_t a {
+    color: #005CD9;
+    text-decoration: underline;
+}
+
+.res_info {
+    font-size: 12px;
+    margin-top: 3px;
+    line-height: 1.54;
+}
+
+.res_info a {
+    outline: 0;
+    color: #505961;
+    text-decoration: none;
+}
+
+.res_tool {
+    height: 22px;
+    line-height: 22px;
+    margin-top: 9px;
+    font-size: 12px;
+}
+
+.res_tool a {
+    margin-right: 15px;
+    color: #999;
+    outline: 0;
+    color: #505961;
+    text-decoration: none;
+}
+
+.in_conternt_reslist .result {
+    overflow: hidden;
+    clear: both;
+    padding: 15px 0 0;
+}
+
+.res-pages-wr {
+    clear: both;
+}
+
+:focus {
+    outline: 0;
+    border: 0;
+    background: none;
+}
+
+ /***************************************************/
+
+#main_content_right {
+    float: right;
+    width: 370px;
+}
+
+ .co_author_wr {
+    /* Box model */
+    padding-bottom: 17px;
+    margin-top: 25px;
+    
+    /* Visual */
+    border-bottom: 1px solid #bfbfbf;
+ }
+
+ .co_author_wr h3, .co_affiliate_wr h3 {
+     /* Box model */
+     margin-bottom: 14px;
+
+     /* Typographic */
+     font-size: 16px;
+     line-height: 24px;
+     font-weight: 400;
+     color: #000000;
+}
+
+.co_author_more {
+    /* Box model */
+    float: right;
+
+    /* Typographic */
+    font-weight: 400;
+    color: #999;
+    font-size: 12px;
+}
+
+.co_author_item {
+    margin-bottom: 4px;
+    height: 60px;
+}
+
+.au_img_link {
+    /* Box model */
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+
+    /* Visual */
+    border: rgba(0,0,0,.25) 1px solid;
+}
+
+.au_info {
+    /* Box model */
+    display: inline-block;
+    margin-left: 12px;
+    vertical-align: top;
+    width: 255px;
+
+    /* Typographic */
+    color: #505961;
+    font-size: 13px;
+    line-height: 1.54;
+}
+
+.au_info p{
+    margin: 0;
+    padding: 0;
+}
+
+.au_info a{
+    text-decoration: none;
+}
+
+.au_name {
+    color: #005cd9;
+}
+
+.au_label {
+    color: #999;
+}
+
+.co_affiliate_wr {
+    /* Box model */
+    margin-top: 25px;
+}
+
+.co_affiliate_list {
+    /* Box model */
+    margin: 0;
+    padding: 0;
+    
+    /* Others */
+    list-style: none;
+}
+
+.co_paper_name {
+    /* Box model */
+    margin-right: 10px;
+    flex: 1 1 auto;
+    display: inline-block;
+    vertical-align: middle;
+    height: 16px;
+    line-height: 16px;
+    -webkit-box-flex: 1;
+    
+    /* Typographic */
+    color: #505961;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+    word-break: break-all;
+    
+    /* Others */
+    overflow: hidden;
+}
+
+.co_affiliate_list li {
+    /* Box model */
+    margin-bottom: 13px;
+    height: 16px;
+    line-height: 16px;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-box-pack: justify;
+    -webkit-box-align: stretch;
+    -webkit-box-lines: single;
+    display: -webkit-flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: strecth;
+    align-content: flex-start;
+    flex-wrap: nowrap;
+}
+
+.co_affiliate_list span {
+    display: inline-block;
+
+    /* Box model */
+    vertical-align: middle;
+    height: 16px;
+}
+
+.co_paper_line {
+    /* Box model */
+    text-align: right;
+    display: inline-block;
+
+    /* Typographic */
+    white-space: nowrap;
+}
+
+.co_paper_count {
+    /* Box model */
+    line-height: 16px;
+    width: 20px;
+    
+    /* Typographic */
+    font-size: 13px;
+}

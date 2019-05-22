@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>vue-demo</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+      <script src="https://unpkg.com/vue/dist/vue.js"></script>
+      <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+      <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+      <link href="a.css" rel="stylesheet" type="text/css"/>
+  </head>
+     
+  <body>
+      <div id="app" min-width = "1000px">
+        
+
+
+
+        <el-container style="height: 100%; border: 1px solid #eee">
+            <el-aside width="250px" style="background-color: rgb(238, 241, 246)">
+              <el-menu>
+                <el-submenu index="1">
+                  <template slot="title" >个人信息</template>
+                  <el-menu-item-group>
+                    <el-menu-item index="1-1" @click.native="index">查看个人信息</el-menu-item>
+                    <el-menu-item index="1-2" @click.native="change_self_info">修改个人信息</el-menu-item>
+                  </el-menu-item-group>
+                </el-submenu>
+                <el-submenu index="2">
+                  <template slot="title" style="text-align: left">历史记录</template>
+                  <el-menu-item-group>
+                    <el-menu-item index="2-1" @click.native="download_history">下载记录</el-menu-item>
+                    <el-menu-item index="2-2" @click.native="browse_history">浏览记录</el-menu-item>
+                    <el-menu-item index="2-3" @click.native="comment_history">评论记录</el-menu-item>
+                  </el-menu-item-group>               
+                  </el-submenu>
+                </el-submenu>
+              </el-menu>
+            </el-aside>
+            
+            <el-container >
+                <el-header style=" margin-left :100px;margin-top: 30px;margin-bottom: 20px; text-align: left; font-size: 20px">
+                    
+                    修改个人信息
+                  </el-header>
+             
+              <el-main style="width :100%">
+              <el-container>
+
+                  
+
+                
+                  
+
+              <el-form ref="form" :model="form" label-width="80px">
+               <div id="form" style="float:left;width: 300px; margin-right:40px; margin-left:80px"> 
+                        <el-form-item prop="nickname" label="用户名" :rules="[
+                        { required: true, message: '请输入用户名', trigger: 'blur' },
+                      ]">
+                          <el-input  v-model="form.nickname" ></el-input>
+                        </el-form-item>
+                    
+                
+                        <el-form-item prop="email" label="邮箱" :rules="[
+                        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                        { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change' }
+                      ]">
+                      <el-input v-model="form.email"></el-input>
+                    </el-form-item>
+                <el-form-item label="密码" prop="pass":rules="[
+                { required: true, message: '请输入密码', trigger: 'blur' },
+              ]">
+                  <el-input type="password" v-model="form.pass" auto-complete="off"></el-input>
+                </el-form-item>
+
+                <el-form-item label="确认密码" prop="checkPass":rules="[
+                { required: true, message: '请再次输入密码', trigger: 'blur' },
+              ]">
+                  <el-input type="password" v-model="form.checkPass" auto-complete="off"></el-input>
+                </el-form-item>
+
+                <el-form-item label="身份证号" prop="idcard":rules="[
+                { required: true, message: '请输入身份证号', trigger: 'blur' },
+              ]">
+                  <el-input v-model="form.idcard"></el-input>
+                </el-form-item>
+
+                <el-form-item prop="intro" label="个人简介" style="width :600px;" >
+                    <el-input type="textarea" rows="8" v-model="form.profile"  ></el-input>
+                  </el-form-item>
+
+                <el-form-item>
+                  <el-button type="primary" @click="submitForm('form')">提交</el-button>
+                  <el-button @click="resetForm('form')">重置</el-button>
+                </el-form-item>
+              </div>
+
+                
+
+                  
+                </el-form>
+
+
+
+
+                <div id="photo" style="float:right">
+                  <div style="margin-left: 80px">上传头像<p> </p></div>
+                  <el-upload
+                  class="avatar-uploader"
+                  action="upload.php"
+                  :data="userID" 
+                  :show-file-list="true"
+                  :on-success="handleAvatarSuccess"
+                  :before-upload="beforeAvatarUpload"
+                  >
+                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-upload> 
+                <p> </p></div>
+
+
+
+
+
+              
+            </el-container>
+          </el-main>
+          </el-container>
+          </el-container>
+    </div>
+    <!-- built files will be auto injected -->
+    
+    <script type="text/javascript" src="change_self_info.js"></script>
+  </body>
+
+  
+  
+  
+
+</html>
+
+

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!--<link rel="stylesheet" href="css/works.css" type="text/css">-->
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
+    <title>资源检索</title>
+</head>
+<body style="margin: 0px;height: 100%;" >
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui@2.8.2/lib/index.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<div id="app" style="height: 100%;">
+    <!--导航栏-->
+    <el-menu
+            :default-active="activeIndex1"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#CAE1FF"           
+            type="flex" justify="center">
+        <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
+            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" >资源检索</el-menu-item>
+        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goAuth">学者频道</el-menu-item>
+        <!--<el-menu-item index="4" style="min-width:500px;font-weight: bold; width: 40%; " >-->
+        <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">
+            <el-select v-model="select" slot="prepend" >
+            <el-option label="摘要" value="1"></el-option>
+            <el-option label="标题" value="2"></el-option>
+            <el-option label="全文" value="3"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
+        </el-input>
+        <!--用户!-->
+        <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+          <span class="el-dropdown-link" >
+            <el-image
+                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                    :src="person_url"></el-image>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown" >
+                <el-dropdown-item command="a">个人中心</el-dropdown-item>
+                <el-dropdown-item command="b">退出</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
+    </el-menu>
+    <div id="main_search" style="width:100%; height:100%;">
+        <div style="height: 5%"></div>
+        <div style="width:55%; margin: 0 auto">
+            <template>
+                <div>
+                    <div>找到约{{info.length}}条相关结果:</div>
+                    <el-divider></el-divider>
+                    <div v-for="(value,index) in info.slice((currentPage- 1)*pagesize,currentPage*pagesize)">
+                        <div>
+                            <el-row>
+                                <el-link type="primary" v-html="value.title"  @click="checkDet(value.id)" style="font-size: 18px;font-weight: 400;"></el-link>
+                                <!--<div v-html="info[index].title"  @click="checkDet(index)" style="color:#409EFF;cursor:pointer;font-size: 18px;font-weight: 400;font-family: 'Helvetica Neue',Helvetica,Arial,'Microsoft YaHei','微软雅黑';"></div>-->
+                            </el-row>
+                            <el-row>
+                                <div v-html="value.abstract" style="color: #666"></div>
+                            </el-row>
+                            <el-row>
+                                <div>{{value.author}}   - 被引量:{{value.cited}}  -时间:{{value.date}}</div>
+                            </el-row>
+                            <el-row>
+                                <el-tag >{{value._type}}</el-tag>
+                                <el-tag >类型:{{value.database}}</el-tag>
+                                <el-tag >关键词:{{value.keyword}}</el-tag>
+                            </el-row>
+                        </div>
+                        <el-divider></el-divider>                      
+                    </div>
+                    <el-pagination
+                        layout="prev, pager, next"
+                        :page-size="pagesize"    
+                        :current-page="currentPage"
+                        :pager-count="5" 
+                        @current-change="handleCurrentChange"
+                        :total="info.length"                     
+                        > 
+                    </el-pagination>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+<div id="sys-loading" class=""><div class="spinner">
+        <div class="loader-inner line-scale-pulse-out-rapid">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        </div></div>
+</body>
+<style>
+    mark {
+        color:red;
+        background-color: white;
+        font-weight: bold;
+    }
+    body::-webkit-scrollbar {
+        width: 0px;
+    }
+    .el-select .el-input {
+        width: 130px;
+    }
+    .input-with-select .el-input-group__prepend {
+        background-color: #fff;
+    }
+    .el-dropdown-link {
+        cursor: pointer;
+        color: #409EFF;
+    }
+    .el-icon-arrow-down {
+        font-size: 0px;
+    }
+    .el-row {
+        margin-bottom: 20px;
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+        background: #d3dce6;
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        min-height: 36px;
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+    .allsources{
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        color:#3A66C8;
+    }
+</style>
+<script>
+    document.onreadystatechange = subSomething;
+    function subSomething() {
+        //当页面加载状态
+        if (document.readyState == "complete") {
+            //延迟一秒关闭loading
+            $('#sys-loading').delay(200).hide(0);
+            $('.spinner').delay(200).fadeOut('slow');
+        }
+    }
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            activeIndex1: '2',
+            person_url: './img/person_def.png',
+            testMessage:[],
+            searchId:0,
+            searchContent:'',
+            currentPage:1,
+            info:[],
+            pagesize:5,
+            input3: '',
+            select: "2",
+        },
+        created() {          
+            this.getInfo();
+        },
+        methods:{
+            createPerson: function(){
+                this.people.push(this.newPerson);
+                // 添加完newPerson对象后，重置newPerson对象
+                this.newPerson = {name: '', age: 0, sex: 'Male'}
+            },
+            getInfo(){
+                var u=decodeURI(location.search);
+                if(u.indexOf("?")>-1){
+                    var paraStr=u.split("?")[1];
+                    var paraItems=paraStr.split("&");
+                    if(paraItems.length==2)
+                    {
+                        this.searchId=parseInt(paraItems[0].split("=")[1]);
+                        this.searchContent=paraItems[1].split("=")[1].trim()
+                        this.$http.post('solrSearch.php',{content:this.searchContent,type:this.searchId+2},{emulateJSON:true}).then(       
+                            function(res){
+                                this.info=res.body;
+                                //this.getAuth()
+                                for(i=0;i<this.info.length;i++)
+                                {
+                                    this.info[i].title=this.htmlEscape(this.info[i].title)
+                                }
+                                for(i=0;i<this.info.length;i++)
+                                {
+                                    if(this.info[i].abstract=="")
+                                    {
+                                        this.info[i].abstract="there is no abstract"
+                                    }
+                                    else
+                                    {
+                                        this.info[i].abstract=this.htmlEscape(this.info[i].abstract)
+                                    }
+                                }
+                                for(i=0;i<this.info.length;i++)
+                                {
+                                    if(this.info[i].type=="0")
+                                        this.info[i]._type="专利";
+                                    else if(this.info[i].type=="1")
+                                        this.info[i]._type="论文";
+                                    else if(this.info[i].type=="2")
+                                        this.info[i]._type="项目";
+                                    else
+                                        this.info[i]._type="论文"
+                                    if(this.info[i].author=="")
+                                        this.info[i].author="佚名"             
+                                }
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    }
+                    else
+                    {
+                        this.$alert('URL错误', '警告', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                window.location.href="index.html";
+                            }
+                        });
+                    }
+                }else{
+                    this.$alert('没有搜索内容', '警告', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            window.location.href="index.html";
+                        }
+                    });
+                }
+                this.input3=this.searchContent;
+            },
+            goAuth(){
+                u="searchAuth.html?content="+this.searchContent;
+                window.location.href=encodeURI(u);
+            },
+            handleSelect: function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleCommand: function(command) {
+                this.$message('click on item ' + command);
+            },
+            handleClick1: function(tab, event) {
+                console.log(tab, event);
+            },
+            handleClick2: function(tab, event) {
+                console.log(tab, event);
+            },
+            Reload_index: function(){
+                window.location.href="index.html";
+            },
+            htmlEscape(str) {
+                str=str.replace(/&lt;/g,"<")
+                str=str.replace(/&gt;/g,">")
+                return str
+            },
+            handleCurrentChange(currentPage){  //改变当前页
+                this.currentPage = currentPage
+            },
+            checkDet(id){
+                u="works.html?PID="+id;
+                window.location.href=encodeURI(u);
+                console.log(u)
+                //this.$message("查看的论文id为："+this.info[index].id)
+            },
+            search:function(){
+                //发送get请求
+                if(this.input3.trim()=="")
+                {
+                    this.$message('输入内容为空');
+                    return;
+                }
+                this.searchContent=this.input3.trim();
+                this.searchId=parseInt(this.select);
+                u="search.html?id="+this.select+"&content="+this.input3.trim()
+                //location.search="?id="+this.select+"&content="+this.input3.trim();
+                history.replaceState({status: 0}, "", u);
+                this.getInfo()
+            }
+        }
+    })
+</script>
+
+</html>
