@@ -22,15 +22,15 @@ else if($type == 3)
 {
     //$url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract&hl.simple.post='."&lt;/font&gt;"."&hl.simple.pre=&lt;font color=\'red\'&gt;";
     //echo $url;
-    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=abstract:'.$content.'&hl=on&hl.fl=abstract';
+    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=abstract:'.$content.'&hl=on&hl.fl=abstract&hl.fragsize=100000';
 }
 else if($type == 4)
 {
-    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=title:'.$content.'&hl=on&hl.fl=title';
+    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=title:'.$content.'&hl=on&hl.fl=title&hl.fragsize=100000';
 }
 else if($type == 5)
 {
-    $url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract,title';
+    $url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract,title&hl.fragsize=100000';
 }
 
 
@@ -65,7 +65,8 @@ for($i = 0;$i<$len;$i++)
     $tempID = $arr['response']['docs'][$i]['id'];
     //$tempID = (int)$tempID;
 
-    $sqlcheck = ("SELECT * FROM achievement,paper WHERE achievement.id = '$tempID'and achievement.id = paper.id;" );
+    $sqlcheck = ("SELECT achievement.id,achievement.title,achievement.abstract,achievement.time,achievement.url,achievement.author,paper.date,paper.database,paper.cited,paper.fund,paper.keyword,paper.doi,paper.classification,paper.source1,paper.source2,paper.source3,paper.source4
+ FROM achievement LEFT OUTER JOIN paper ON achievement.id = paper.id WHERE achievement.id = '$tempID';" );
 
     $runcheck = mysqli_query($con, $sqlcheck);
     $data = array();
@@ -90,7 +91,6 @@ if($type>=3)
         {
             $res[$i]['title'] = htmlentities(stripslashes($arr['highlighting'][$tempID]['title'][0]));
         }
-        $res[$i]['authList']="";
     }
 }
 
