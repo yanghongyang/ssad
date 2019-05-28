@@ -29,7 +29,7 @@ if($runSQL){
 //模糊匹配
 $sql=("select specialist.id as specID, specialist.name as specName, affiliation as institute, sum(cited) as cited, count(*) as workNum ".
     "from specialist, specialist_achievement, achievement, paper ".
-    "where specialist.id=specialist_achievement.sid and specialist_achievement.aid=achievement.id and achievement.id=paper.id and specialist.name<>'$specName'and locate('$specName', specialist.name)>0 ".
+    "where specialist.id=specialist_achievement.sid and specialist_achievement.aid=achievement.id and achievement.id=paper.id and specialist.name<>'$specName' and locate('$specName', specialist.name)>0 ".
     "group by specialist.id ");
 $runSQL=mysqli_query($con, $sql);
 if($runSQL){
