@@ -42,6 +42,7 @@ if($runSQL){
 
 $sql=("select id as specID, name as specName, affiliation as institute from specialist where name='$specName'");
 $runSQL=mysqli_query($con, $sql);
+$len=count($data);
 if($runSQL){
     while ($row = mysqli_fetch_assoc($runSQL)){
         $ok=0;
@@ -61,6 +62,7 @@ if($runSQL){
 
 $sql=("select id as specID, name as specName, affiliation as institute from specialist where name<>'$specName' and  locate('$specName', specialist.name)>0 ");
 $runSQL=mysqli_query($con, $sql);
+$len=count($data);
 if($runSQL){
     while ($row = mysqli_fetch_assoc($runSQL)){
         $ok=0;
