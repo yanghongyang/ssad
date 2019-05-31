@@ -1,13 +1,11 @@
-﻿<?php
+<?php
 $uname = $_POST['nickname'];
-$pro = $_POST['profile'];
-$ema = $_POST['email'];
+//$pro = $_POST['profile'];
+//$ema = $_POST['email'];
 $pass = $_POST['password'];
 
-//$uname = "abc";
-//$pro = "洪洋大小姐最棒";
-//$ema = "126@buaa.edu.cn";
-//$pass = "123456";
+$pro = "";
+$ema = "";
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
@@ -17,8 +15,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "resource_sharing");
-
+mysqli_select_db($con, "test");
 $sqlcheck = ("select count(*) from user where nickname = '$uname';" );
 $runcheck = mysqli_query($con, $sqlcheck);
 $resultcheck = mysqli_fetch_array($runcheck);

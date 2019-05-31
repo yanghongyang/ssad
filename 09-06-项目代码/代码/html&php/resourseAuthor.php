@@ -11,7 +11,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "resource_sharing");
+mysqli_select_db($con, "test");
 
 $sqlcheck = ("select sid, name, specialist_achievement.order from specialist_achievement, specialist where sid = id and aid = '$pid' order by specialist_achievement.order;" );
 $runcheck = mysqli_query($con, $sqlcheck);

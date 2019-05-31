@@ -1,7 +1,7 @@
 <?php
 
-//$specName = $_POST['specname'];
-$specName = "林未";
+$specName = $_POST['specname'];
+//$specName = "林未";
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
@@ -11,7 +11,7 @@ if (mysqli_connect_errno()) {
     exit;
 }
 mysqli_set_charset($con, 'utf8');
-mysqli_select_db($con, "resource_sharing");
+mysqli_select_db($con, "test");
 
 //name, affialition
 $data=array();
@@ -83,7 +83,6 @@ if($runSQL){
 $len=count($data);
 //头像URL设置
 for ($i=0; $i<$len; $i++){
-//    echo "fuck ";
     $tmp=$data[$i]['specID'];
     $avatorSQL = ("select avator from user where expert='$tmp'");
     $runAvatorSQL = mysqli_query($con, $avatorSQL);
@@ -99,7 +98,7 @@ for ($i=0; $i<$len; $i++){
     }
 }
 //echo count($data);
-//echo "fuck";
 $json = json_encode($data);
 echo $json;
+// var_dump($data);
 //echo $data;

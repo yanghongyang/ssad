@@ -13,6 +13,7 @@
 <script src="https://unpkg.com/element-ui@2.8.2/lib/index.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script src="js/jquery.cookie.js" type="text/javascript"></script>
 <div id="app" style="height: 100%;">
     <!--导航栏-->
     <el-menu
@@ -24,23 +25,26 @@
             text-color="#fff"
             type="flex" justify="center"
             active-text-color="#ffd04b">
-        <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
-            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
-        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" >主页</el-menu-item>
-        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">学者频道</el-menu-item>
+        <el-menu-item index='1' style="width: 8%;min-width:100px;" @click.native="Reload_index">
+            <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goindex">学术检索</el-menu-item>
+        <!--
+        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goindex">学者频道</el-menu-item>
+        -->
+        <el-menu-item index="4" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">审核认证</el-menu-item>
         <!--用户!-->
         <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
-          <span class="el-dropdown-link" >
-            <el-image
-                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
-                    :src="person_url"></el-image>
-              <i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown" >
-                <el-dropdown-item command="a">个人中心</el-dropdown-item>
-                <el-dropdown-item command="b">退出</el-dropdown-item>
-            </el-dropdown-menu>
-        </el-dropdown>
+            <span class="el-dropdown-link" >
+              <el-image
+                      style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                      :src="person_url"></el-image>
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown" >
+                  <el-dropdown-item command="a">{{user_op1}}</el-dropdown-item>
+                  <el-dropdown-item command="b">退出</el-dropdown-item>
+              </el-dropdown-menu>
+          </el-dropdown>
     </el-menu>
     <!--main-->
     <template>
@@ -150,8 +154,8 @@
             </div>
         </span>
         <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="accAuth">确 定</el-button>
+            <el-button @click="rejAuth">拒 绝</el-button>
+            <el-button type="primary" @click="accAuth">通 过</el-button>
         </span>
     </el-dialog>
 </div>
@@ -218,19 +222,39 @@
     }
     var vm = new Vue({
         el: '#app',
-        data: {
-            activeIndex1: '2',
-            person_url: './img/person_def.png',
-            currentPage:1,  //初始页
-            pagesize:10,    //每页的数据
-            userList: [],    //存放数据的数组
-            dialogVisible : false,
-            rzMessage :{},
-            checkid :0,
-            isRouterAlive:true
+        data(){      
+            return {
+                activeIndex1: '4',
+                input1: '',
+                input2: '',
+                input3: '',
+                select: "2",
+                selectAuth:"1",
+                person_url: './img/person_def.png',
+                isAuthSearch: false,
+                user_op1:"个人中心",
+                loginDialog: false,
+                actTab:"first",
+                currentPage:1,  //初始页
+                pagesize:10,    //每页的数据
+                userList: [],    //存放数据的数组
+                dialogVisible : false,
+                rzMessage :{},
+                checkid :0,
+                isRouterAlive:true
+            };
         },
         inject:['reload'],
         created() {
+            if($.cookie('_UserType')!="3") {
+                window.location.href="index.html"; 
+            }
+            else{
+                if($.cookie('_PersonUrl')!=null)
+                {
+                    this.person_url=$.cookie('_PersonUrl')
+                }   
+            }
             this.handleUserList()
         },
         provide(){
@@ -239,6 +263,9 @@
             }
         },
         methods:{
+            goindex(){
+                window.location.href='index.html'
+            },
             reload(){
                 this.isRouterAlive = false
                 this.handleUserList()
@@ -255,7 +282,44 @@
                 console.log(key, keyPath);
             },
             handleCommand: function(command) {
-                this.$message('click on item ' + command);
+                if(command=='a')
+                {
+                    window.location.href="checkAuth.html"; 
+                }
+                else
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //logout
+                        this.$http.post('logout.php',{userId:$.cookie('_UserId'),},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                //console.log(r);
+                                if(r==0)
+                                {
+                                    this.$message('退出登录');
+                                    $.removeCookie('_UserId' ,{path:'/'});
+                                    $.removeCookie('_UserName' ,{path:'/'});
+                                    $.removeCookie('_PassWord' ,{path:'/'});
+                                    $.removeCookie('_UserType' ,{path:'/'});
+                                    $.removeCookie('_PersonUrl' ,{path:'/'});
+                                    this.person_url='./img/person_def.png';
+                                    window.location.href="index.html"; 
+                                }
+                                else
+                                {
+                                    this.$message('操作失败，请检测网络状况后重新尝试');
+                                }
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    }
+                    else
+                    {
+                        this.$message("未登录")
+                    }
+                    
+                }
             },
             handleClick1: function(tab, event) {
                 console.log(tab, event);
@@ -292,7 +356,7 @@
             chkAuth(id){
                 this.$http.post('checkIdenAuth.php',{id:id},{emulateJSON:true}).then(function(res){
                     this.rzMessage = res.body[0]  ;
-                    checkid=id;
+                    this.checkid=id;
                     this.dialogVisible = true ;
                 },function(res){
                     console.log(res.status);
@@ -300,7 +364,7 @@
                 });
             },
             accAuth(){
-                this.$http.post('accAuth.php',{id:checkid},{emulateJSON:true}).then(function(res){
+                this.$http.post('accAuth.php',{id:this.checkid},{emulateJSON:true}).then(function(res){
                     if(res.body==0)
                         this.$message('操作成功');
                     else
@@ -312,6 +376,19 @@
                     this.$message('操作请求失败');
                 })
             },
+            rejAuth(){
+                this.$http.post('rejectAuth.php',{id:this.checkid},{emulateJSON:true}).then(function(res){
+                    if(res.body==0)
+                        this.$message('操作成功');
+                    else
+                        this.$message('操作失败');
+                    this.reload();
+                    this.dialogVisible = false;
+                },function(res){
+                    console.log(res.status);
+                    this.$message('操作请求失败');
+                })
+            }
         }
     });
 

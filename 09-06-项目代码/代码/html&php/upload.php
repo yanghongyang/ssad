@@ -40,7 +40,7 @@ else
 
         //连接数据库更新头像的文件名
         $image_url="http://www.zdoubleleaves.cn/rsp/img/".$text;
-        $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","resource_sharing");
+        $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","test");
         mysqli_query($con,"UPDATE user SET avator= '$image_url'WHERE id='$userID'");
         mysqli_close($con);
 

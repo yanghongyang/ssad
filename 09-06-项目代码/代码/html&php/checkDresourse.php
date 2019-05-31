@@ -11,7 +11,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "resource_sharing");
+mysqli_select_db($con, "test");
 
 $sqlcheck = ("select url as DresourceURL, title, paper.date as time, cited as citedNum from download, achievement, paper where resource = achievement.id and achievement.id = paper.id and downloader = '$uid';" );
 $runcheck = mysqli_query($con, $sqlcheck);

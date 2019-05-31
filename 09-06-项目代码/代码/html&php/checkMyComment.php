@@ -11,7 +11,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "resource_sharing");
+mysqli_select_db($con, "test");
 
 $sqlcheck = ("select comment.id as CID, comment.time, content, title as paperName from achievement, comment where resource = achievement.id and commentator = '$uid';" );
 $runcheck = mysqli_query($con, $sqlcheck);

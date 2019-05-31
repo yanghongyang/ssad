@@ -6,50 +6,53 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!--<link rel="stylesheet" href="css/works.css" type="text/css">-->
     <link rel="stylesheet" type="text/css" href="css/loader.css">
-    <title>专家检索</title>
+    <title>学者频道</title>
 </head>
 <body style="margin: 0px;height: 100%;" >
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
 <script src="https://unpkg.com/element-ui@2.8.2/lib/index.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script src="js/jquery.cookie.js" type="text/javascript"></script>
 <div id="app" style="height: 100%;">
     <!--导航栏-->
     <el-menu
             :default-active="activeIndex1"
             class="el-menu-demo"
             mode="horizontal"
-            @select="handleSelect"
-            background-color="#CAE1FF"           
-            type="flex" justify="center">
-        <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
-            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
-        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goSearch">资源检索</el-menu-item>
+            @select="handleSelect"          
+            type="flex" justify="center"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b">
+        <el-menu-item index='1' style="width: 8%;min-width:100px;" @click.native="Reload_index">
+            <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goSearch">学术检索</el-menu-item>
         <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">学者频道</el-menu-item>
         <!--<el-image src="./img/logo_top.png" style="margin-top: 5px;margin-bottom: 5px"></el-image>-->
-        <!--
         <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">    
-            <el-select v-model="select" slot="prepend" >
+            <el-select v-model="selectAuth" slot="prepend" >
             <el-option label="专家" value="1"></el-option>
             </el-select>
             <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
-        </el-input>-->
+        </el-input>
         <!--用户!-->
         <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
-          <span class="el-dropdown-link" >
-            <el-image
-                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
-                    :src="person_url"></el-image>
-              <i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown" >
-                <el-dropdown-item command="a">个人中心</el-dropdown-item>
-                <el-dropdown-item command="b">退出</el-dropdown-item>
-            </el-dropdown-menu>
-        </el-dropdown>
+            <span class="el-dropdown-link" >
+              <el-image
+                      style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                      :src="person_url"></el-image>
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown" >
+                  <el-dropdown-item command="a">{{user_op1}}</el-dropdown-item>
+                  <el-dropdown-item command="b">退出</el-dropdown-item>
+              </el-dropdown-menu>
+          </el-dropdown>
     </el-menu>
     <div id="main_search" style="width:100%; height:100%;">
-        <div style="height: 7%"></div>
+        <div style="height: 8%"></div>
+        <!--
         <div style="width: 55%;margin: 0 auto;height:10%">
             <el-row :gutter="10" style="display: flex;align-items: center;">
                 <el-col :span="3">
@@ -66,16 +69,12 @@
                     </el-input>
                 </el-col>
             </el-row>
-        </div>
-        <div style="height: 1%"></div>
-        <div style="width:50%; margin: 0 auto">
+        </div>-->
+        <div style="width:55%; margin: 0 auto">
             <template>
                 <div>
-
                     <div>找到约{{info.length}}条相关结果:</div>
-                    
                     <el-divider></el-divider>
-                    
                     <div v-for="(value,index) in info.slice((currentPage- 1)*pagesize,currentPage*pagesize)" >
                         <div>
                             <el-row :gutter="20" style="display: flex;align-items: center;">
@@ -91,7 +90,7 @@
                                         <el-col :span="21" :offset="1">{{value.institute}}</el-col>
                                     </el-row>
                                     <el-row style="color: #666;font-size:14px"> 
-                                        发表文章：40
+                                        发表文章：{{value.workNum}}&nbsp;&nbsp;&nbsp;&nbsp;被引数量：{{value.cited}} 
                                     </el-row>
                                 </el-col>
                             </el-row>
@@ -111,6 +110,47 @@
             </template>
         </div>
     </div>
+    <el-dialog
+    title="登录"
+    :visible.sync="loginDialog"
+    :lock-scroll="false"
+    width="30%">
+    <span >
+        <el-tabs v-model="actTab" style="min-height: 320px;">
+            <el-tab-pane label="登录" name="first">
+                <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm2" style="width: 85%">
+                    <el-form-item label="用户名" prop="uName">
+                        <el-input v-model="ruleForm2.uName"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm2('ruleForm2')">登录</el-button>
+                      <el-button @click="resetForm('ruleForm2')">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="注册" name="second">
+                <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm" style="width: 85%">
+                    <el-form-item label="用户名" prop="age">
+                        <el-input v-model="ruleForm.age"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="checkPass">
+                      <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
+                      <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    </el-form-item>
+                  </el-form>
+            </el-tab-pane>
+        </el-tabs>
+    </span>
+</el-dialog>
 </div>
 <div id="sys-loading" class=""><div class="spinner">
         <div class="loader-inner line-scale-pulse-out-rapid">
@@ -121,6 +161,7 @@
             <div></div>
         </div>
         </div></div>
+
 </body>
 <style>
     mark {
@@ -185,23 +226,188 @@
     }
     var vm = new Vue({
         el: '#app',
-        data: {
-            activeIndex1: '3',
-            person_url: './img/person_def.png',
-            testMessage:[],
-            searchContent:'',
-            currentPage:1,
-            info:[],
-            pagesize:5,
-            input3: '',
-            select: "1",
-            fit:"fill",
-            isRouterAlive:true
+        data(){
+            var checkAge = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                        callback(new Error('用户名不能为空'));
+                    }
+                    else{
+                        callback();
+                    }
+                }, 500);
+            };
+            var validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            var validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.pass) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            var checkuName = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                    callback(new Error('请输入用户名'));
+                    }  
+                    else {
+                        callback();
+                    }
+                }, 500);
+            };
+            var checkPass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                ruleForm: {
+                    pass: '',
+                    checkPass: '',
+                    age: ''
+                },
+                rules: {
+                    pass: [{ validator: validatePass, trigger: 'blur' }],
+                    checkPass: [{ validator: validatePass2, trigger: 'blur' }],
+                    age: [{ validator: checkAge, trigger: 'blur' }]
+                },
+                ruleForm2: {
+                    pass: '',
+                    uName: ''
+                },
+                rules2: {
+                    pass: [{ validator: checkPass, trigger: 'blur' }],
+                    uName: [{ validator: checkuName, trigger: 'blur' }]
+                },
+                activeIndex1: '3',
+                input1: '',
+                input2: '',
+                input3: '',
+                select: "2",
+                selectAuth:"1",
+                person_url: './img/person_def.png',
+                isAuthSearch: false,
+                user_op1:"登录",
+                loginDialog: false,
+                actTab:"first",
+                //testMessage:[],
+                searchContent:'',
+                currentPage:1,
+                info:[],
+                pagesize:5,
+                fit:"fill",
+                isRouterAlive:true
+            };
         },
-        created() {          
+        created() {         
+            if($.cookie('_UserId')!=null) {
+                this.user_op1="个人中心";
+                if($.cookie('_PersonUrl')!=null)
+                {
+                    this.person_url=$.cookie('_PersonUrl')
+                }   
+            }
+            else{
+                this.user_op1="登录";
+            } 
             this.getInfo();
         },
         methods:{
+            submitForm2(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('login.php',{nickname:this.ruleForm2.uName,password:this.ruleForm2.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r.result==0)
+                                {
+                                    $.cookie('_UserName', this.ruleForm2.uName, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserId', r.id, { expires: 7 ,path: '/' });
+                                    $.cookie('_PersonUrl', r.avator, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserType', r.type, { expires: 7 ,path: '/' });
+                                    $.cookie('_PassWord', this.ruleForm2.pass, { expires: 7 ,path: '/' });
+                                    this.user_op1="个人中心";
+                                    this.person_url=$.cookie('_PersonUrl') 
+                                    this.$message("登录成功")
+                                }
+                                else if(r.result==2)
+                                {
+                                    this.$message("密码错误")
+                                }
+                                else if(r.result==3)
+                                {
+                                    this.$message("用户已登录")
+                                }
+                                else if(r.result==1)
+                                {
+                                    this.$message("用户不存在")
+                                }
+                                else
+                                {
+                                    this.$message("登录失败，请检查网络状况后重新尝试")
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('登录失败')
+                        return false;
+                    }
+                });    
+                this.loginDialog=false;
+            },
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('register.php',{nickname:this.ruleForm.age,password:this.ruleForm.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r==0)
+                                {
+                                    this.$message('注册成功');
+                                }
+                                else if(r==1)
+                                {
+                                    this.$message('用户名已存在');
+                                }
+                                else
+                                {
+                                    this.$message('注册失败，请检测网络状况后重新尝试');
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('注册信息不全');
+                        return false;
+                    }
+                });              
+                this.loginDialog=false;
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
             createPerson: function(){
                 this.people.push(this.newPerson);
                 // 添加完newPerson对象后，重置newPerson对象
@@ -215,10 +421,9 @@
                 if(u.indexOf("?")>-1){
                     var paraStr=u.split("?")[1];
                     this.searchContent=paraStr.split("=")[1].trim()
-                    this.$http.post('searchSpec.php',{specName:this.searchContent},{emulateJSON:true}).then(       
+                    this.$http.post('searchSpec.php',{specname:this.searchContent},{emulateJSON:true}).then(       
                         function(res){
                             this.info=res.body;
-                            //this.$alert(res.body)
                         },
                         function(res){console.log(res.status);}
                     );
@@ -236,7 +441,55 @@
                 console.log(key, keyPath);
             },
             handleCommand: function(command) {
-                this.$message('click on item ' + command);
+                if(command=='a')
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //跳转到个人中心
+                        if($.cookie('_UserType')=="3")
+                            window.location.href="checkAuth.html"; 
+                        else
+                            window.location.href="personal_index.html"; 
+                    }
+                    else
+                    {
+                        this.loginDialog=true;
+                    }
+                }
+                else
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //logout
+                        this.$http.post('logout.php',{userId:$.cookie('_UserId'),},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                //console.log(r);
+                                if(r==0)
+                                {
+                                    this.$message('退出登录');
+                                    $.removeCookie('_UserId' ,{path:'/'});
+                                    $.removeCookie('_UserName' ,{path:'/'});
+                                    $.removeCookie('_PassWord' ,{path:'/'});
+                                    $.removeCookie('_UserType' ,{path:'/'});
+                                    $.removeCookie('_PersonUrl' ,{path:'/'});
+                                    this.person_url='./img/person_def.png';
+                                    this.user_op1='登录'
+                                }
+                                else
+                                {
+                                    this.$message('操作失败，请检测网络状况后重新尝试');
+                                }
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    }
+                    else
+                    {
+                        this.$message("未登录")
+                    }
+                    
+                }
             },
             handleClick1: function(tab, event) {
                 console.log(tab, event);
@@ -258,7 +511,6 @@
                 this.currentPage = currentPage
             },
             checkDet(index){
-                //console.log(index)
                 var i="1"
                 u="expert.html?UID="+i+"&SID="+index;
                 window.location.href=encodeURI(u); 
@@ -274,6 +526,7 @@
                 u="searchAuth.html?content="+this.input3.trim();
                 history.replaceState({status: 0}, "", u);
                 this.getInfo()
+                this.currentPage=1
             }
         }
     })

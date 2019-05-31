@@ -13,7 +13,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "resource_sharing");
+mysqli_select_db($con, "test");
 
 $sqlcheck = ("delete from comment where id = '$cid' and commentator = '$uid';");
 $runcheck = mysqli_query($con, $sqlcheck);

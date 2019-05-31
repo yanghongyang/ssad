@@ -6,13 +6,14 @@
     <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
     <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <link rel="stylesheet" href="../css/works.css" type="text/css">
+    <link rel="stylesheet" type="text/css" href="css/loader.min.css">
 </head>
 <body style="margin: 0px;">
 <script src="//unpkg.com/vue/dist/vue.js"></script>
 <script src="//unpkg.com/element-ui@2.8.2/lib/index.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 <div id="app">
     <!--导航栏-->
     <el-menu
@@ -25,8 +26,8 @@
             type="flex" justify="center"
             active-text-color="#ffd04b">
         <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
-            <img src='./img/logo_min.jpg' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
-        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=false">主页</el-menu-item>
+            <img src='./img/logo.png' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=false">学术检索</el-menu-item>
         <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=true">学者频道</el-menu-item>
         <!--用户!-->
         <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
@@ -42,6 +43,12 @@
             </el-dropdown-menu>
         </el-dropdown>
     </el-menu>
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+        <div class="load_title">欢迎访问星澄学术<br><span>V1.0</span></div>
+    </div>
     <el-row>
         <el-col :span="1"><div class="grid-content"></div></el-col>
         <!--主体内容-->
@@ -54,13 +61,13 @@
                 <!--来源、收藏-->
                 <div style="line-height: 1.5; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
                     <span>来自 {{source}}</span>
-                    <!--<span>&nbsp;|&nbsp;</span>
+                    <span>&nbsp;|&nbsp;</span>
                     <span>
                         <a class="el-icon-star-off">
                             收藏 {{clectCnt}}
                         </a>
                         &nbsp; &nbsp;阅读量 {{readCnt}}
-                    </span>-->
+                    </span>
                 </div>
                 <!--详情-->
                 <!--作者-->
@@ -99,7 +106,7 @@
                 <div style="line-height: 1.7; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
                     <span>
                         <el-col :span="2"><div>DOI：</div></el-col>
-                        <el-col :span="22"><div>{{doi}}</div></el-col>
+                        <el-col :span="22"><div>&nbsp;&nbsp;{{doi}}</div></el-col>
                     </span>
                 </div>
                 <!--被引量-->
@@ -189,7 +196,7 @@
                                             </div>
                                             <div class="reqdata" style="display:none"></div>
                                         </div>
-                                    </div>
+                                </div>
                                 <div class="res-pages-wr">
                                     <el-pagination background layout="prev, pager, next" :total="total" :page-size="pageSize" @current-change="currentChange"
                                                    style="padding: 10px 0; text-align: center;">
@@ -208,10 +215,25 @@
                 </div>
             </div>
         </el-col>
-        <el-col :span="6">
-            <div class="grid-content bg-purple">
+        <el-col :span="5" style="padding-left: 20px; padding-top: 20px;">
+            <el-card class="box-card">
+                <div slot="header" class="clearfix">
+                    <span>评论</span>
+                    <el-button style="float: right; padding: 3px 0" type="text">+&nbsp;添加评论</el-button>
+                </div>
+                <div class="result" style="line-height: 1.5; font-family: Arial;"
+                     v-for="comment in similarList.slice((currentPage-1)*pageSize,currentPage*pageSize)">
+                    <div class="res_con">
 
-            </div></el-col>
+                    </div>
+                    <div class="reqdata" style="display:none"></div>
+                </div>
+                <div class="res-pages-wr">
+                    <el-pagination background layout="prev, pager, next" :total="total" :page-size="pageSize" @current-change="currentChange"
+                                   style="padding: 10px 0; text-align: center;">
+                    </el-pagination>
+                </div>
+            </el-card>
         <el-col :span="1">
             <div class="grid-content">
 
@@ -221,6 +243,26 @@
 </div>
 </body>
 <style>
+    .text {
+        font-size: 14px;
+    }
+
+    .item {
+        margin-bottom: 18px;
+    }
+
+    .clearfix:before,
+    .clearfix:after {
+        display: table;
+        content: "";
+    }
+    .clearfix:after {
+        clear: both
+    }
+
+    .box-card {
+        width: 480px;
+    }
     .el-select .el-input {
         width: 130px;
     }
@@ -265,6 +307,10 @@
 </style>
 
 <script>
+    $(window).load(function(){
+        $('body').addClass('loaded');
+        $('#loader-wrapper .load_title').remove();
+    });
     function getQueryString(name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
         var r =  window.location.search.substr(1).match(reg);
@@ -307,7 +353,8 @@
             currentPage: 1,
             total: 0,
             user_op1:"个人中心",
-            person_url: './img/person_def.png'
+            person_url: './img/person_def.png',
+            comments:[]
         },
         methods:{
             Reload_index: function(){
@@ -353,84 +400,24 @@
             //资源作者
             checkResourceAuthor: function() {
                 this.$http.post('resourseAuthor.php', { paperID: this.paperID }, { emulateJSON: true }).then(function (res) {
-                    console.log(res.body);
+                    //console.log(res.body);
                     this.authorInfo = res.body;
                     this.author = res.body;
                 });
             },
-            //阅读量
-            checkVisit: function() {
-                var caution=false;
-                function setCookie(name,value,expires,path,domain,secure)
-                {
-                    var curCookie=name+"="+escape(value) +
-                            ((expires)?";expires="+expires.toGMTString() : "") +
-                            ((path)?"; path=" + path : "") +
-                            ((domain)? "; domain=" + domain : "") +
-                            ((secure)?";secure" : "")
-                    if(!caution||(name + "=" + escape(value)).length <= 4000)
-                    {
-                        document.cookie = curCookie
-                    }
-                    else if(confirm("Cookie exceeds 4KB and will be cut!"))
-                    {
-                        document.cookie = curCookie
-                    }
-                }
-                function getCookie(name)
-                {
-                    var prefix = name + "="
-                    var cookieStartIndex = document.cookie.indexOf(prefix)
-                    if (cookieStartIndex == -1)
-                    {
-                        return null
-                    }
-                    var cookieEndIndex=document.cookie.indexOf(";",cookieStartIndex+prefix.length)
-                    if(cookieEndIndex == -1)
-                    {
-                        cookieEndIndex = document.cookie.length
-                    }
-                    return unescape(document.cookie.substring(cookieStartIndex+prefix.length,cookieEndIndex))
-                }
-                function deleteCookie(name, path, domain)
-                {
-                    if(getCookie(name))
-                    {
-                        document.cookie = name + "=" +
-                                ((path) ? "; path=" + path : "") +
-                                ((domain) ? "; domain=" + domain : "") +
-                                "; expires=Thu, 01-Jan-70 00:00:01 GMT"
-                    }
-                }
-                function fixDate(date)
-                {
-                    var base=new Date(0)
-                    var skew=base.getTime()
-                    if(skew>0)
-                    {
-                        date.setTime(date.getTime()-skew)
-                    }
-                }
-                var now=new Date()
-                fixDate(now)
-                now.setTime(now.getTime()+365 * 24 * 60 * 60 * 1000)
-                var visits = getCookie("counter")
-                if(!visits)
-                {
-                    visits=1;
-                }
-                else
-                {
-                    visits=parseInt(visits)+1;
-                }
-                setCookie("counter", visits, now)
-                this.readCnt = visits;
+            //查看评论
+            checkComment: function() {
+                this.$http.post('checkComment.php', { paperID: this.paperID }, { emulateJSON: true }).then(function (res) {
+                    console.log(this.paperID)
+                    console.log(res.body);
+                });
             },
+            //阅读量
             //查看相似文献
             checkSimiWork: function() {
                 this.$http.post('solrMLT.php', { id: this.paperID}, { emulateJSON: true }).then(function (res) {
                     //alert(res.body);
-                    console.log(res.body);
+                    //console.log(res.body);
                     var workInfo = res.body;
                     this.similarList = res.body;
                         this.total = Math.ceil(this.similarList.length / this.pageSize);
@@ -438,41 +425,6 @@
                 });
             },
             //引用文献
-            //分享到新浪微博
-            shareToSina: function() {
-                var _shareUrl = 'http://v.t.sina.com.cn/share/share.php?&appkey=895033136';     //真实的appkey ，必选参数
-                _shareUrl += '&url='+ encodeURIComponent(_url||document.location);     //参数url设置分享的内容链接|默认当前页location，可选参数
-                _shareUrl += '&title=' + encodeURIComponent(_title||document.title);    //参数title设置分享的标题|默认当前页标题，可选参数
-                _shareUrl += '&source=' + encodeURIComponent(_source||'');
-                _shareUrl += '&sourceUrl=' + encodeURIComponent(_sourceUrl||'');
-                _shareUrl += '&content=' + 'utf-8';   //参数content设置页面编码gb2312|utf-8，可选参数
-                _shareUrl += '&pic=' + encodeURIComponent(_pic||'');  //参数pic设置图片链接|默认为空，可选参数
-                window.open(_shareUrl,'_blank','toolbar=no,menubar=no,scrollbars=no,resizable=1,location=no,status=0,' + 'width=' + _width + ',height=' + _height + ',top=' + (screen.height-_height)/2 + ',left=' + (screen.width-_width)/2);
-            },
-            //分享到腾讯空间
-            shareToTencent: function() {
-                var p = {
-                    url: window.location.href,
-                    showcount: '1',    /*是否显示分享总数,显示：'1'，不显示：'0' */
-                    desc: '',        /*默认分享理由(可选)*/
-                    summary: '还不赶紧点击进来观看',   /*分享摘要(可选)*/
-                    title: '震惊！',    /*分享标题(可选)*/
-                    pics: '',
-                    style: '203',
-                    width: 98,
-                    height: 22,
-                    sites               : ['qzone', 'qq', 'weibo','wechat'], // 启用的站点
-                    disabled            : ['google', 'facebook', 'twitter'], // 禁用的站点
-                    wechatQrcodeTitle   : '微信扫一扫：分享', // 微信二维码提示文字
-                    wechatQrcodeHelper  : '<p>微信里点“发现”，扫一下</p><p>二维码便可将本文分享至朋友圈。</p>',
-                };
-                var s = [];
-                for(var i in p) {
-                    s.push(i + '=' + encodeURIComponent(p[i] || ''));
-                }
-                url = "http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?" + s.join('&');
-                window.open(url);
-            },
             //分页操作
             currentChange: function(currentPage){
                 this.currentPage = currentPage;
@@ -481,8 +433,9 @@
     });
     vm.checkWork();
     vm.checkResourceAuthor();
-    vm.checkVisit();
+    //vm.checkVisit();
     vm.checkSimiWork();
+    vm.checkComment();
 </script>
 <script type="text/javascript">
 
