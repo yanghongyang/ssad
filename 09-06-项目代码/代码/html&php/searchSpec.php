@@ -26,6 +26,7 @@ if($runSQL){
         array_push($data, $row);
     }
 }
+
 //模糊匹配
 $sql=("select specialist.id as specID, specialist.name as specName, affiliation as institute, sum(cited) as cited, count(*) as workNum ".
     "from specialist, specialist_achievement, achievement, paper ".
@@ -38,10 +39,28 @@ if($runSQL){
     }
 }
 
+
 $sql=("select id as specID, name as specName, affiliation as institute from specialist where name='$specName'");
 $runSQL=mysqli_query($con, $sql);
-$len = count($data);
-//echo "len=".$len;
+if($runSQL){
+    while ($row = mysqli_fetch_assoc($runSQL)){
+        $ok=0;
+        for($i=0; $i<$len; $i++){
+            if($data[$i]["specID"]==$row["specID"]){
+                $ok=1;
+                break;
+            }
+        }
+        if($ok==0) {
+            $row["workNum"]="0";
+            $row["cited"]="0";
+            array_push($data, $row);
+        }
+    }
+}
+
+$sql=("select id as specID, name as specName, affiliation as institute from specialist where name<>'$specName' and  locate('$specName', specialist.name)>0 ");
+$runSQL=mysqli_query($con, $sql);
 if($runSQL){
     while ($row = mysqli_fetch_assoc($runSQL)){
         $ok=0;
