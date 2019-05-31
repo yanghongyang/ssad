@@ -11,7 +11,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 
 $sqlcheck = ("select applicant, identityCard, identity1, identity2 from certification, user where applicant = user.id and certification.id = '$id';" );
 $runcheck = mysqli_query($con, $sqlcheck);

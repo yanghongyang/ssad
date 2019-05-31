@@ -14,7 +14,7 @@ if (mysqli_connect_errno()) {
 }
 
 mysqli_set_charset($con, 'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 //paper.ID as paperID, title, paper.date as 'time', cited as citedNum
 $sql=("select paper.id as paperID, title, paper.date as 'time', cited as citedNum, source1, source2, source3, source4 from achievement, specialist, specialist_achievement, paper ".
     "where achievement.id=specialist_achievement.aid and specialist.id=specialist_achievement.sid and paper.id=achievement.id and specialist.name='$specName'");
