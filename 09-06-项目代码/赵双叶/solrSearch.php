@@ -5,14 +5,14 @@ header("Content-Type:text/html;charset=UTF-8");
 //type:搜索类型 【0 对于摘要检索；1 对于标题检索；2 全字段检索；3 摘要高亮； 4 标题高亮；5 全字段高亮】
 $content=urlencode($_POST["content"]);
 $type=$_POST["type"];
-//$type=3;
+//$type = 3;
 if($type == 0)
 {
     $url = 'http://123.206.68.192:8080/solr/new_core/select?q=abstract:'.$content;
 }
 else if($type == 1)
 {
-    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=title'.$content;
+    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=title:'.$content;
 }
 else if($type == 2)
 {
@@ -22,15 +22,15 @@ else if($type == 3)
 {
     //$url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract&hl.simple.post='."&lt;/font&gt;"."&hl.simple.pre=&lt;font color=\'red\'&gt;";
     //echo $url;
-    $url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract';
+    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=abstract:'.$content.'&hl=on&hl.fl=abstract&hl.fragsize=100000';
 }
 else if($type == 4)
 {
-    $url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract';
+    $url = 'http://123.206.68.192:8080/solr/new_core/select?q=title:'.$content.'&hl=on&hl.fl=title&hl.fragsize=100000';
 }
 else if($type == 5)
 {
-    $url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract,title';
+    $url = 'http://123.206.68.192:8080/solr/new_core/select?q='.$content.'&hl=on&hl.fl=abstract,title&hl.fragsize=100000';
 }
 
 
@@ -41,7 +41,7 @@ curl_setopt($ch, CURLOPT_HEADER,0);
 $output = curl_exec($ch);
 $arr = json_decode($output, true);
 //列表的长度
-$len = count($arr['response']['docs']);
+$len = min(500,count($arr['response']['docs']));
 //echo $len;
 
 
@@ -53,7 +53,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 
 $j = 12;
 //echo $arr['highlighting'][$j]['abstract'][0];
@@ -65,7 +65,8 @@ for($i = 0;$i<$len;$i++)
     $tempID = $arr['response']['docs'][$i]['id'];
     //$tempID = (int)$tempID;
 
-    $sqlcheck = ("SELECT * FROM achievement WHERE id = '$tempID';" );
+    $sqlcheck = ("SELECT achievement.id,achievement.title,achievement.abstract,achievement.time,achievement.url,achievement.author,paper.date,paper.database,paper.cited,paper.fund,paper.keyword,paper.doi,paper.classification,paper.source1,paper.source2,paper.source3,paper.source4
+ FROM achievement LEFT OUTER JOIN paper ON achievement.id = paper.id WHERE achievement.id = '$tempID';" );
 
     $runcheck = mysqli_query($con, $sqlcheck);
     $data = array();
@@ -75,14 +76,21 @@ for($i = 0;$i<$len;$i++)
 
 }
 //echo $res;
-
+//echo $len;
 if($type>=3)
 {
     for($i = 0;$i<$len;$i++)
     {
-
         $tempID = $arr['response']['docs'][$i]['id'];
-        $res[$i]['abstract'] = htmlentities(stripslashes($arr['highlighting'][$tempID]['abstract'][0]));
+        //echo "i:".$tempID;
+        if(isset($arr['highlighting'][$tempID]['abstract']))
+        {
+            $res[$i]['abstract'] = htmlentities(stripslashes($arr['highlighting'][$tempID]['abstract'][0]));
+        }
+        if(isset($arr['highlighting'][$tempID]['title']))
+        {
+            $res[$i]['title'] = htmlentities(stripslashes($arr['highlighting'][$tempID]['title'][0]));
+        }
     }
 }
 
