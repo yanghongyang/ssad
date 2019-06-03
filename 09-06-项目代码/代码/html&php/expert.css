@@ -227,8 +227,8 @@ other（其他） */
 }
 
 .in_content_rtop {
-    height: 32px;
-    line-height: 25px;
+    /* height: 32px;
+    line-height: 25px; */
 }
 
 .in_content_filter_wr {
@@ -338,9 +338,9 @@ other（其他） */
 }
 
 :focus {
-    outline: 0;
-    border: 0;
-    background: none;
+    /* outline: 0;
+    border: 0; */
+    /* background: none; */
 }
 
  /***************************************************/
@@ -356,7 +356,7 @@ other（其他） */
     margin-top: 25px;
     
     /* Visual */
-    border-bottom: 1px solid #bfbfbf;
+    /* border-bottom: 1px solid #bfbfbf; */
  }
 
  .co_author_wr h3, .co_affiliate_wr h3 {
@@ -392,7 +392,7 @@ other（其他） */
     height: 50px;
 
     /* Visual */
-    border: rgba(0,0,0,.25) 1px solid;
+    /*border: rgba(0,0,0,.25) 1px solid;*/
 }
 
 .au_info {

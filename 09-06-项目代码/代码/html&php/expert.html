@@ -5,36 +5,98 @@
     <meta charset="UTF-8">
     <!-- import CSS -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <link rel="stylesheet" type="text/css" href="css/loader.min.css">
+
     <!-- 为该页面自定义的样式，合并时注意路径 -->
     <link rel="stylesheet" href="./expert.css">
+    <style>
+
+mark {
+    color:red;
+    background-color: white;
+    font-weight: bold;
+}
+body::-webkit-scrollbar {
+    width: 0px;
+}
+.el-select .el-input {
+    width: 130px;
+}
+.input-with-select .el-input-group__prepend {
+    background-color: #fff;
+}
+.el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
+}
+.el-icon-arrow-down {
+    font-size: 0px;
+}
+.el-row {
+    margin-bottom: 20px;
+}
+.el-col {
+    border-radius: 4px;
+}
+.bg-purple-dark {
+    background: #99a9bf;
+}
+.bg-purple {
+    background: #d3dce6;
+}
+.bg-purple-light {
+    background: #e5e9f2;
+}
+.grid-content {
+    min-height: 36px;
+}
+.row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
+}
+.allsources{
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    color:#3A66C8;
+}
+    </style>
 </head>
 
 <body style="margin: 0">
     <div id="app">
 
         <!-- 起占位作用的导航，需要替换 -->
+        <!--导航栏-->
         <el-menu
-                :default-active="activeIndex1"
+                default-active="1"
                 class="el-menu-demo"
                 mode="horizontal"
-                @select="handleSelect"
+                @select="handleSelect"         
+                type="flex" justify="center"
                 background-color="#545c64"
                 text-color="#fff"
-                type="flex" justify="center"
                 active-text-color="#ffd04b">
-            <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
-                <img src='./img/logo.png' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
-            <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=false">学术检索</el-menu-item>
-            <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=true">学者频道</el-menu-item>
+            <el-menu-item index='1' style="width: 8%;min-width:150px;" @click.native="Reload_index">
+                <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
+            <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" onclick="window.open('index.html','_self')">学术检索</el-menu-item>
+            <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goAuth">学者频道</el-menu-item>
+            <!--<el-menu-item index="4" style="min-width:500px;font-weight: bold; width: 40%; " >-->
+            <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">
+                <el-select v-model="select" slot="prepend" >
+                <el-option label="摘要" value="1"></el-option>
+                <el-option label="标题" value="2"></el-option>
+                <el-option label="全文" value="3"></el-option>
+                </el-select>
+                <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
+            </el-input>
             <!--用户!-->
             <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
-          <span class="el-dropdown-link" >
-            <el-image
-                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
-                    :src="person_url"></el-image>
-              <i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
+                <span class="el-dropdown-link" >
+                <el-image
+                        style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                        :src="person_url"></el-image>
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
                 <el-dropdown-menu slot="dropdown" >
                     <el-dropdown-item command="a">{{user_op1}}</el-dropdown-item>
                     <el-dropdown-item command="b">退出</el-dropdown-item>
@@ -49,46 +111,46 @@
 
                 <!-- 专家图片+认证按钮 -->
                 <div id="person_image">
-                    <a href="javascript:;" id="person_portrait">
-                        <el-image style="width: 112px; height: 112px;" src="" fit="cover">
+                    <a id="person_portrait">
+                        <el-image style="width: 112px; height: 112px;" :src="specAvator" fit="cover">
                             <div slot="error"
                                 style="background:#f5f7fa; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
                                 <i class="el-icon-picture-outline"></i>
                             </div>
                         </el-image>
                     </a>
-                    <el-button type="primary" id="person_authen">我要认证</el-button>
+                    <el-button onclick="window.open('./verification.html?UID='+vm.UID)" type="primary" id="person_authen">我要认证</el-button>
                 </div>
 
                 <!-- 该专家基本信息 -->
                 <div id="person_info">
                     <div id="p_name">{{specName}}</div>
-                    <div id="p_volume">1900人看过</div>
+                    <!-- <div id="p_volume">1900人看过</div> -->
                     <div id="p_affiliate">{{specAffiliation}}</div>
                     <ul id="p_ach_wr">
                         <li class="p_ach_item">
                             <p class="p_ach_type">被引频次</p>
                             <p class="p_ach_num">{{specCited}}</p>
                         </li>
-                        <li class="p_ach_item">
+                        <li class="p_ach_item" style="border-right: none;">
                             <p class="p_ach_type">成果数</p>
                             <p class="p_ach_num">{{specWorkNum}}</p>
                         </li>
-                        <li class="p_ach_item">
+                        <!-- <li class="p_ach_item">
                             <p class="p_ach_type">H指数</p>
                             <p class="p_ach_num">17</p>
                         </li>
                         <li class="p_ach_item" style="border-right: none;">
                             <p class="p_ach_type">G指数</p>
                             <p class="p_ach_num">27</p>
-                        </li>
+                        </li> -->
                     </ul>
                     <div class="person_editinfo">
-                        <span style="float: left; color: #999;">领域:&nbsp;</span>
+                        <!-- <span style="float: left; color: #999;">领域:&nbsp;</span>
                         <span>
                             <a href="//xueshu.baidu.com/s?wd=%E9%80%BB%E8%BE%91%E5%AD%A6&amp;tn=SE_baiduxueshu_c1gjeupa&amp;ie=utf-8"
                                 target="_blank" style="color: #505961;">逻辑学</a>
-                        </span>
+                        </span> -->
                     </div>
                 </div>
             </div>
@@ -126,24 +188,6 @@
                             </div>
                         </div>
                         <div class="pieMapTotal">总计<p class="number">{{specWorkNum}}</p>
-                        </div>
-                        <div class="pieBox journalBox" style="display: none;">
-                            <h3>期刊 <span class="boxPercent">89.8%</span><span class="boxNumber">(共114篇)</span></h3>
-                            <p>北大核心期刊<span class="numline" style="width:80px"></span><span class="boxnum">54</span></p>
-                            <p>CSCD期刊数<span class="numline" style="width:70px"></span><span class="boxnum">47</span></p>
-                            <p>中国科技核心<span class="numline" style="width:77px"></span><span class="boxnum">52</span></p>
-                            <p>SCI期刊数<span class="numline" style="width:4px"></span><span class="boxnum">3</span></p>
-                            <p>EI期刊数<span class="numline" style="width:21px"></span><span class="boxnum">14</span></p>
-                            <p>SCIE期刊数<span class="numline" style="width:13px"></span><span class="boxnum">9</span></p>
-                            <p>CSSCI期刊数<span class="numline" style="width:7px"></span><span class="boxnum">5</span></p>
-                            <p>其他期刊数<span class="numline" style="width:56px"></span><span class="boxnum">38</span></p>
-                        </div>
-                        <div class="pieBox conferenceBox" style="display: none;">
-                            <h3>会议论文<span class="boxPercent">7.1%</span><span class="boxNumber">(共9篇)</span></h3>
-                            <p>其他会议数<span class="numline" style="width:80px"></span><span class="boxnum">9</span></p>
-                        </div>
-                        <div class="pieBox booktitleBox" style="top: 49px; left: 426px; display: none;">
-                            <h3>图书<span class="boxPercent">3.1%</span><span class="boxNumber">(共4篇)</span></h3>
                         </div>
                     </div>
                     <!-- <div class="effectmap_line_wr" style="overflow: visible;">
@@ -190,7 +234,7 @@
                     <div id="articlelist_container">
                         <div class="in_content_rtop">
                             <div class="in_content_filter_wr">
-                                <el-dropdown style="margin-right: 14px; font-size: 13px;">
+                                <!-- <el-dropdown style="margin-right: 14px; font-size: 13px;">
                                     <span class="el-dropdown-link">
                                         全部年份<i class="el-icon-arrow-down el-icon--right"></i>
                                     </span>
@@ -198,8 +242,8 @@
                                         <el-dropdown-item command="a">2011</el-dropdown-item>
                                         <el-dropdown-item command="b">2012</el-dropdown-item>
                                     </el-dropdown-menu>
-                                </el-dropdown>
-                                <el-dropdown style="margin-right: 14px; font-size: 13px;">
+                                </el-dropdown> -->
+                                <!-- <el-dropdown style="margin-right: 14px; font-size: 13px;">
                                     <span class="el-dropdown-link">
                                         全部类型<i class="el-icon-arrow-down el-icon--right"></i>
                                     </span>
@@ -215,15 +259,15 @@
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item command="a">第一作者</el-dropdown-item>
                                     </el-dropdown-menu>
-                                </el-dropdown>
-                                <el-dropdown style="margin-right: 14px; font-size: 13px;">
+                                </el-dropdown> -->
+                                <!-- <el-dropdown style="margin-right: 14px; font-size: 13px;">
                                     <span class="el-dropdown-link">
                                         按时间降序<i class="el-icon-arrow-down el-icon--right"></i>
                                     </span>
                                     <el-dropdown-menu slot="dropdown">
-                                        <el-dropdown-item command="a">按被引降序</el-dropdown-item>
+                                        <el-dropdown-item command="a" v-on:click="specWork.sort(sortByCited)">按被引降序</el-dropdown-item>
                                     </el-dropdown-menu>
-                                </el-dropdown>
+                                </el-dropdown> -->
                                 <!-- <div class="in_content_filter">
                                     <div class="year_sel_default filter_sel_default" data-target="sc_year"><span
                                             class="filter_sel_text">全部年份</span>
@@ -324,24 +368,31 @@
                                         <h3 class="res_t"><a
                                                 :href="'./works.html?PID='+workI['paperID']"
                                                 target="_blank">{{workI["title"]}}</a></h3>
-                                        <div class="res_info"><span class="res_year">{{workI["time"]}}</span>&nbsp;-&nbsp;<span><a
-                                                    target="_blank">{{specName}}</a></span>&nbsp;-&nbsp;<a
-                                                target="_blank">{{workI["source1"]+""}}</a>&nbsp;-&nbsp;<span
+                                        <div class="res_info"><span class="res_year">{{workI["time"]}}</span>&nbsp;-&nbsp;
+                                            <span><a
+                                                    target="_blank">{{specName}}</a></span>&nbsp;-&nbsp;
+                                                    <!-- <a
+                                                target="_blank">{{workI["source1"]+""}}</a>&nbsp;-&nbsp; -->
+                                                <span
                                                 class="res_cite"><span>被引量:&nbsp;</span><a
                                                     target="_blank" class="cite_cont ">{{workI["citedNum"]}}</a></span></div>
                                         <div class="res_tool">
                                             <a class="res_col c-icon-heart-hover" href="javascript:;" target="_blank"><i
                                                     class="c-icon c-icon-heart"></i><span style="display:inline-block;"
-                                                    class="col_text">收藏</span></a><a class="res_q c-icon-shape-hover"
+                                                    class="col_text">收藏</span></a>
+                                                    <!-- <a class="res_q c-icon-shape-hover"
                                                 href="javascript:;"><i
-                                                    class="c-icon c-icon-shape"></i>引用</a><a target="_blank"
-                                                class="c-icon-file-hover"
+                                                    class="c-icon c-icon-shape"></i>引用</a> -->
+                                                    <a target="_blank"
+                                                class="c-icon-file-hover" :href="'./works.html?PID='+workI['paperID']"
                                                     class="c-icon c-icon-file"></i>相关文章</a></div>
                                     </div>
                                     <div class="reqdata" style="display:none"></div>
                                 </div>
 
                             </div>
+
+
                             <div class="res-pages-wr">
                                 <el-pagination background layout="prev, pager, next" :total="total" :page-size="pageSize" @current-change="currentChange"
                                     style="padding: 10px 0; text-align: center;">
@@ -356,11 +407,11 @@
             <div id="main_content_right">
 
                 <div class="co_author_wr">
-                    <h3><a href="javascript:;" class="co_author_more">&gt;&gt;专家关系网络</a><span>合作学者</span></h3>
+                    <h3><!--<a href="javascript:;" class="co_author_more">&gt;&gt;专家关系网络</a>--><span>合作学者</span></h3>
                     <div class="co_authorlist">
                         <div class="co_author_item" v-for="specI in simiSpec">
                             <a :href="'./expert.html?UID='+UID+'&SID='+specI['id']" target="_blank" class="au_img_link">
-                                <el-image style="width: 50px; height: 50px;" src="" fit="cover">
+                                <el-image style="width: 50px; height: 50px;" :src="defaultAvator" fit="cover">
                                     <div slot="error"
                                         style="background:#f5f7fa; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
                                         <i class="el-icon-picture-outline"></i>
@@ -375,7 +426,7 @@
                     </div>
                 </div>
 
-                <div class="co_affiliate_wr">
+                <!-- <div class="co_affiliate_wr">
                     <h3>合作机构</h3>
                     <ul class="co_affiliate_list">
                         <li><span title="北京航空航天大学计算机科学与工程系" class="co_paper_name">
@@ -400,28 +451,62 @@
                             </span>
                         </li>
                     </ul>
-                </div>
+                </div> -->
             </div>
         </div>
-
+            <!--登录dialog-->
+    <el-dialog
+    title="登录"
+    :visible.sync="loginDialog"
+    :lock-scroll="false"
+    width="30%">
+    <span >
+        <el-tabs v-model="actTab" style="min-height: 320px;">
+            <el-tab-pane label="登录" name="first">
+                <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm2" style="width: 85%">
+                    <el-form-item label="用户名" prop="uName">
+                        <el-input v-model="ruleForm2.uName"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm2('ruleForm2')">登录</el-button>
+                      <el-button @click="resetForm('ruleForm2')">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="注册" name="second">
+                <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm" style="width: 85%">
+                    <el-form-item label="用户名" prop="age">
+                        <el-input v-model="ruleForm.age"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="checkPass">
+                      <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
+                      <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    </el-form-item>
+                  </el-form>
+            </el-tab-pane>
+        </el-tabs>
+    </span>
+</el-dialog>
     </div>
-</body>
 
-<style>
-    .el-select .el-input {
-        width: 130px;
-    }
-    .input-with-select .el-input-group__prepend {
-        background-color: #fff;
-    }
-</style>
+</body>
 
 <!-- import Vue before Element -->
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <!-- import JavaScript -->
 <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-<!-- <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
 <script>
     // $.post('checkSpec.php', {SID:SID, UID:UID},
@@ -433,7 +518,7 @@
         var r = window.location.search.substr(1).match(reg);
         if (r != null)
             return unescape(r[2]);
-        return 1;
+        return -1;
     }
 
     var vm = new Vue({
@@ -441,6 +526,9 @@
         data: {
             SID: getQueryString("SID"),
             UID: getQueryString("UID"),
+
+            specAvator: "",
+            defaultAvator:"img/default_auth.png",
 
             specName: "",
             specAffiliation: "",
@@ -455,18 +543,115 @@
             simiSpec: [],
 
             specWork: [],
-            select: "2",
+
             total: 0,
-            pageSize: 2,
+            pageSize: 1,
             currentPage: 1,
-            isAuthSearch: false,
-            activeIndex1: '2',
-            person_url: './img/person_def.png',
-            user_op1:"个人中心"
+
+            person_url: './img/person_def.png', //用户头像链接
+
+            user_op1: "登录",
+            input3: '',
+            searchId:0,
+            searchContent:'',
+            select: "2",
+
+            checkAge: (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                        callback(new Error('用户名不能为空'));
+                    }
+                    else{
+                        callback();
+                    }
+                }, 500);
+            },
+            validatePass: (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            },
+            validatePass2: (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.pass) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            },
+            checkuName: (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                    callback(new Error('请输入用户名'));
+                    }  
+                    else {
+                        callback();
+                    }
+                }, 500);
+            },
+            checkPass: (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    callback();
+                }
+            },
+
+            actTab:"first",
+            rules2: {
+                    pass: [{ validator: this.checkPass, trigger: 'blur' }],
+                    uName: [{ validator: this.checkuName, trigger: 'blur' }]
                 },
+            rules: {
+                    pass: [{ validator: this.validatePass, trigger: 'blur' }],
+                    checkPass: [{ validator: this.validatePass2, trigger: 'blur' }],
+                    age: [{ validator: this.checkAge, trigger: 'blur' }]
+                },
+            ruleForm2: {
+                    pass: '',
+                    uName: ''
+                },
+            ruleForm: {
+                    pass: '',
+                    checkPass: '',
+                    age: ''
+                },
+            loginDialog: false, //控制登录的dialog
+        },
+        created() {  
+            //判断是否登录
+            if($.cookie('_UserId')!=null) {
+                this.user_op1="个人中心";
+                if($.cookie('_PersonUrl')!=null)
+                {
+                    this.person_url=$.cookie('_PersonUrl')
+                }   
+            }
+            else{
+                this.user_op1="登录";
+            }     
+            //this.getInfo();
+        },
         methods: {
-            Reload_index: function(){
-                window.location.href="index.html";
+            getSpecAvator: function(){
+                this.$http.post('getSpecAvator.php', { SID: this.SID }, { emulateJSON: true }).then(function (res) {
+                        this.specAvator = res.body["expert"];
+                        if(this.specAvator == null){
+                            this.specAvator = this.defaultAvator;
+                        }
+                    });
             },
             checkSpec: function(){
                 this.$http.post('checkSpec.php', { SID: this.SID, UID: this.UID }, { emulateJSON: true }).then(function (res) {
@@ -499,42 +684,165 @@
             currentChange: function(currentPage){
                 this.currentPage = currentPage;
             },
+            sortByCited: function(a,b){
+                return b["citedNum"]-a["citedNum"];
+            },
+            handleSelect: function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            goAuth(){
+                u="searchAuth.html?content="+this.searchContent;
+                window.location.href=encodeURI(u);
+            },
             search:function(){
-                if(this.isAuthSearch==false)
+                //发送get请求
+                if(this.input3.trim()=="")
                 {
-                    if(this.input3.trim()=="")
-                    {
-                        this.$message('输入内容为空');
-                        return;
+                    this.$message('输入内容为空');
+                    return;
+                }
+                this.searchContent=this.input3.trim();
+                this.searchId=parseInt(this.select);
+                window.open("search.html?id="+this.select+"&content="+this.input3.trim(), '_self');
+                //location.search="?id="+this.select+"&content="+this.input3.trim();
+                history.replaceState({status: 0}, "", u);
+                //this.getInfo()
+                //this.currentPage=1
+            },
+            submitForm2(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('login.php',{nickname:this.ruleForm2.uName,password:this.ruleForm2.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r.result==0)
+                                {
+                                    $.cookie('_UserName', this.ruleForm2.uName, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserId', r.id, { expires: 7 ,path: '/' });
+                                    $.cookie('_PersonUrl', r.avator, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserType', r.type, { expires: 7 ,path: '/' });
+                                    $.cookie('_PassWord', this.ruleForm2.pass, { expires: 7 ,path: '/' });
+                                    this.user_op1="个人中心";
+                                    this.person_url=$.cookie('_PersonUrl') 
+                                    this.$message("登录成功")
+                                }
+                                else if(r.result==2)
+                                {
+                                    this.$message("密码错误")
+                                }
+                                else if(r.result==3)
+                                {
+                                    this.$message("用户已登录")
+                                }
+                                else if(r.result==1)
+                                {
+                                    this.$message("用户不存在")
+                                }
+                                else
+                                {
+                                    this.$message("登录失败，请检查网络状况后重新尝试")
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('登录失败')
+                        return false;
                     }
-                    u="search.html?id="+this.select+"&content="+this.input3.trim();
-                    window.location.href=encodeURI(u);
+                });    
+                this.loginDialog=false;
+            },
+            //清空表单
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('register.php',{nickname:this.ruleForm.age,password:this.ruleForm.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r==0)
+                                {
+                                    this.$message('注册成功');
+                                }
+                                else if(r==1)
+                                {
+                                    this.$message('用户名已存在');
+                                }
+                                else
+                                {
+                                    this.$message('注册失败，请检测网络状况后重新尝试');
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('注册信息不全');
+                        return false;
+                    }
+                });              
+                this.loginDialog=false;
+            },
+            //点击用户头像
+            handleCommand: function(command) {
+                if(command=='a')
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //跳转到个人中心
+                        if($.cookie('_UserType')=="3")
+                            window.location.href="checkAuth.html"; 
+                        else
+                            window.location.href="personal_index.html"; 
+                    }
+                    else
+                    {
+                        this.loginDialog=true;
+                    }
                 }
                 else
                 {
-                    if(this.input3.trim()=="")
+                    if($.cookie('_UserId')!=null)
                     {
-                        this.$message('输入内容为空');
-                        return;
+                        //logout
+                        this.$http.post('logout.php',{userId:$.cookie('_UserId'),},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                console.log(r);
+                                if(r==0)
+                                {
+                                    this.$message('退出登录');
+                                    $.removeCookie('_UserId' ,{path:'/'});
+                                    $.removeCookie('_UserName' ,{path:'/'});
+                                    $.removeCookie('_PassWord' ,{path:'/'});
+                                    $.removeCookie('_UserType' ,{path:'/'});
+                                    $.removeCookie('_PersonUrl' ,{path:'/'});
+                                    this.person_url='./img/person_def.png';
+                                    this.user_op1='登录'
+                                }
+                                else
+                                {
+                                    this.$message('操作失败，请检测网络状况后重新尝试');
+                                }
+                            },
+                            function(res){console.log(res.status);}
+                        );
                     }
-                    //this.$message(this.input3.trim());
-                    u="searchAuth.html?content="+this.input3.trim();
-                    window.location.href=encodeURI(u);
+                    else
+                    {
+                        this.$message("未登录")
+                    }
+                    
                 }
             },
-            handleCommand: function(command) {
-                if(command=='a')
-                    this.loginDialog=true;
-                //this.$message('click on item ' + command);
-            },
-            handleSelect: function(key, keyPath) {
-                //console.log(key, keyPath);
-            }
         }
     });
     vm.checkSpec();
     vm.checkSimiSpec();
-
+    vm.getSpecAvator();
 </script>
 
 </html>

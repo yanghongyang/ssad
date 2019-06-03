@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+    <!-- 为该页面自定义的样式，合并时注意路径 -->
+    <!-- <link rel="stylesheet" href="./expert.css"> -->
+    <style>
+            .avatar-uploader .el-upload {
+              border: 1px dashed #d9d9d9;
+              border-radius: 6px;
+              cursor: pointer;
+              position: relative;
+              overflow: hidden;
+            }
+            .avatar-uploader .el-upload:hover {
+              border-color: #409EFF;
+            }
+            .avatar-uploader-icon {
+              font-size: 28px;
+              color: #8c939d;
+              width: 85.6px;
+              height: 54px;
+              line-height: 54px;
+              text-align: center;
+            }
+            .avatar {
+              width: 85.6px;
+              height: 54px;
+              display: block;
+            }
+            .avatar-uploader .el-upload {
+                border: 1px dashed #d9d9d9;
+                border-radius: 6px;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+            }
+            .avatar-uploader .el-upload:hover {
+                border-color: #409EFF;
+            }
+            .avatar-uploader-icon {
+                font-size: 28px;
+                color: #8c939d;
+                width: 178px;
+                height: 178px;
+                line-height: 178px;
+                text-align: center;
+            }
+            .avatar {
+                width: 178px;
+                height: 178px;
+                display: block;
+            }
+            
+            mark {
+                color:red;
+                background-color: white;
+                font-weight: bold;
+            }
+            body::-webkit-scrollbar {
+                width: 0px;
+            }
+            .el-select .el-input {
+                width: 130px;
+            }
+            .input-with-select .el-input-group__prepend {
+                background-color: #fff;
+            }
+            .el-dropdown-link {
+                cursor: pointer;
+                color: #409EFF;
+            }
+            .el-icon-arrow-down {
+                font-size: 0px;
+            }
+            .el-row {
+                margin-bottom: 20px;
+            }
+            .el-col {
+                border-radius: 4px;
+            }
+            .bg-purple-dark {
+                background: #99a9bf;
+            }
+            .bg-purple {
+                background: #d3dce6;
+            }
+            .bg-purple-light {
+                background: #e5e9f2;
+            }
+            .grid-content {
+                min-height: 36px;
+            }
+            .row-bg {
+                padding: 10px 0;
+                background-color: #f9fafc;
+            }
+            .allsources{
+                display: inline-block;
+                height: 30px;
+                line-height: 30px;
+                color:#3A66C8;
+            }
+    </style>          
+</head>
+
+<body style="margin: 0">
+    <div id="app">
+            <!--登录dialog-->
+    <el-dialog
+    title="登录"
+    :visible.sync="loginDialog"
+    :lock-scroll="false"
+    width="30%">
+    <span >
+        <el-tabs v-model="actTab" style="min-height: 320px;">
+            <el-tab-pane label="登录" name="first">
+                <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm2" style="width: 85%">
+                    <el-form-item label="用户名" prop="uName">
+                        <el-input v-model="ruleForm2.uName"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm2('ruleForm2')">登录</el-button>
+                      <el-button @click="resetForm('ruleForm2')">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="注册" name="second">
+                <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm" style="width: 85%">
+                    <el-form-item label="用户名" prop="age">
+                        <el-input v-model="ruleForm.age"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="checkPass">
+                      <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
+                      <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    </el-form-item>
+                  </el-form>
+            </el-tab-pane>
+        </el-tabs>
+    </span>
+</el-dialog>
+        <!-- 起占位作用的导航，需要替换 -->
+        <!--导航栏-->
+        <el-menu
+                default-active="1"
+                class="el-menu-demo"
+                mode="horizontal"
+                @select="handleSelect"         
+                type="flex" justify="center"
+                background-color="#545c64"
+                text-color="#fff"
+                active-text-color="#ffd04b">
+            <el-menu-item index='1' style="width: 8%;min-width:150px;" @click.native="Reload_index">
+                <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
+            <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" onclick="window.open('index.html','_self')">学术检索</el-menu-item>
+            <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goAuth">学者频道</el-menu-item>
+            <!--<el-menu-item index="4" style="min-width:500px;font-weight: bold; width: 40%; " >-->
+            <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">
+                <el-select v-model="select" slot="prepend" >
+                <el-option label="摘要" value="1"></el-option>
+                <el-option label="标题" value="2"></el-option>
+                <el-option label="全文" value="3"></el-option>
+                </el-select>
+                <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
+            </el-input>
+            <!--用户!-->
+            <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+                <span class="el-dropdown-link" >
+                <el-image
+                        style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                        :src="person_url"></el-image>
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown" >
+                    <el-dropdown-item command="a">{{user_op1}}</el-dropdown-item>
+                    <el-dropdown-item command="b">退出</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </el-menu>
+
+        <el-steps :active="stepActive" align-center finish-status="success" process-status="finish" style="margin: 20px auto 10px; width: 900px;">
+            <el-step style="cursor: pointer" title="选择认证方式" onclick="if(vm.stepActive<2)vm.stepActive=0"></el-step>
+            <el-step title="填写信息"></el-step>
+            <el-step title="认证提交"></el-step>
+            <el-step title="认证完成"></el-step>
+        </el-steps>
+
+        <el-card style="margin: 0 auto ;width: 900px; height: 300px">
+            <div style="margin: 80px auto ; width: 100%" v-show="stepActive == 0">
+                <el-button v-on:click="stepActive=1; veriMethod=0;" style="margin: 0px auto; display: block" type="primary" icon="el-icon-message el-icon--right">邮箱认证</el-button>&nbsp;
+                <el-button v-on:click="stepActive=1; veriMethod=1" style="margin: 0px auto; display: block" type="primary" icon="el-icon-postcard el-icon--right">身份认证</el-button>
+            </div>
+            <div v-show="stepActive == 1">
+                <div style="margin: 90px auto ; width: 600px" v-show="veriMethod == 0">
+                    <el-form :model="emailValidateForm" ref="emailValidateForm">
+                        <el-form-item
+                            prop="email"
+                            :rules="[
+                              { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                              { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                            ]"
+                        >
+                            <el-input v-model="emailValidateForm.email" placeholder="推荐使用机构邮箱"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button style="display: block; margin:0 auto;" type="primary" @click="submitForm('emailValidateForm')">提交</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <div style="margin: 30px auto ; width: 500px" v-show="veriMethod == 1">
+                    <div style="float: left">
+                        <el-upload
+                            class="avatar-uploader"
+                            action=""
+                            :show-file-list="false"
+                            :on-success="handleAvatarSuccess1"
+                            :before-upload="beforeAvatarUpload"
+                            name="file1"
+                        >
+                        
+                        <img v-if="imageUrl1" :src="imageUrl1" class="avatar">
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                        <div style="text-align: center; font-size: 13px; color: #909399"><i style="color: #F56C6C">*</i>身份证正面</div>
+                    </div>
+                    <div style="float: left; margin-left: 20px">
+                        <el-upload
+                            class="avatar-uploader"
+                            action=""
+                            :show-file-list="false"
+                            :on-success="handleAvatarSuccess2"
+                            :before-upload="beforeAvatarUpload"
+                            name="file2"
+                        >
+                        
+                        <img v-if="imageUrl2" :src="imageUrl2" class="avatar">
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                        <div style="text-align: center; font-size: 13px; color: #909399"><i style="color: #F56C6C">*</i>身份证背面</div>
+                    </div>
+                    <el-button style="margin-left: 20px; margin-top: 5px;" type="primary" @click="idenAuth">提交</el-button>
+                </div>
+            </div>
+            <div style="margin: 60px auto ; width: 900px; text-align: center" v-show="stepActive == 2">
+                <div v-show="errorState == 0">
+                    <div class="el-icon-loading" style="font-size: 100px; color:#409EFF;"></div>
+                    <div style="font-size: 20px; color:#409EFF;">&nbsp;正在审核中...</div>
+                </div>
+                <div v-show="errorState == 1">
+                    <div class="el-icon-close" style="font-size: 100px; color:#F56C6C;"></div>
+                    <a style="cursor: pointer" onclick="vm.stepActive=0; vm.errorState=0"><div style="font-size: 20px; color:#F56C6C; text-decoration: underline">&nbsp;&nbsp;认证失败，请再试一次！</div></a>
+                </div>
+            </div>
+            <div style="margin: 60px auto ; width: 900px; text-align: center" v-show="stepActive == 4">
+                <div class="el-icon-check" style="font-size: 100px; color:#67C23A;"></div>
+                <div style="font-size: 20px; color:#67C23A;">&nbsp;&nbsp;认证成功！</div>
+            </div>
+        </el-card>
+    </div>
+    
+</body>
+
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+<script src="//unpkg.com/element-ui@2.8.2/lib/index.js"></script>
+
+<script>
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null)
+            return unescape(r[2]);
+        return 1;
+    }
+
+    var vm=new Vue({
+        el: '#app',
+        data: {
+            UID: getQueryString("UID"),
+
+            stepActive: 0,
+            veriMethod: 0,
+            errorState: 0,
+            emailValidateForm:{
+                email: "",
+            },
+            imageUrl1: "",
+            imageUrl2: "",
+            file1: null,
+            file2: null,
+            formFile: new FormData(),
+
+            person_url: './img/person_def.png', //用户头像链接
+
+            user_op1: '个人中心',
+            input3: '',
+            searchId:0,
+            searchContent:'',
+            select: "2",
+
+            checkAge: (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                        callback(new Error('用户名不能为空'));
+                    }
+                    else{
+                        callback();
+                    }
+                }, 500);
+            },
+            validatePass: (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            },
+            validatePass2: (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.pass) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            },
+            checkuName: (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                    callback(new Error('请输入用户名'));
+                    }  
+                    else {
+                        callback();
+                    }
+                }, 500);
+            },
+            checkPass: (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    callback();
+                }
+            },
+
+            actTab:"first",
+            rules2: {
+                    pass: [{ validator: this.checkPass, trigger: 'blur' }],
+                    uName: [{ validator: this.checkuName, trigger: 'blur' }]
+                },
+            rules: {
+                    pass: [{ validator: this.validatePass, trigger: 'blur' }],
+                    checkPass: [{ validator: this.validatePass2, trigger: 'blur' }],
+                    age: [{ validator: this.checkAge, trigger: 'blur' }]
+                },
+            ruleForm2: {
+                    pass: '',
+                    uName: ''
+                },
+            ruleForm: {
+                    pass: '',
+                    checkPass: '',
+                    age: ''
+                },
+            loginDialog: false, //控制登录的dialog
+        },
+        created() {  
+            //判断是否登录
+            if($.cookie('_UserId')!=null) {
+                this.user_op1="个人中心";
+                if($.cookie('_PersonUrl')!=null)
+                {
+                    this.person_url=$.cookie('_PersonUrl')
+                }   
+            }
+            else{
+                this.user_op1="登录";
+                window.open('','_self');
+            }     
+            //this.getInfo();
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('mailAuth.php', { UID: this.UID, email: this.emailValidateForm['email'] }, { emulateJSON: true }).then(function (res) {
+                            if(res.body==0)
+                                this.stepActive = 4;
+                            else {
+                                this.errorState = 1;
+                                this.stepActive ++;
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            selectAuth() {
+                this.$http.post('selectAuth.php', { UID: this.UID }, { emulateJSON: true }).then(
+                    function (res) {
+                        //console.log(res);
+                        if(res.body != 'null'){
+                            if(res.body['state'] == 0){
+                                this.stepActive = 2;
+                                this.errorState = 0;
+                            }
+                            else if(res.body['state'] == 1){
+                                this.stepActive = 4;
+                            }
+                            else{
+                                this.stepActive = 2;
+                                this.errorState = 1;
+                            }
+                        }
+                        else{
+                            this.stepActive = 0;
+                        }
+                    }
+                )
+            },
+            handleAvatarSuccess1(res, file) {
+                this.file1=file.raw;
+                this.formFile.append("file1", this.file1);
+                this.imageUrl1 = URL.createObjectURL(this.file1);
+            },
+            handleAvatarSuccess2(res, file) {
+                this.file2=file.raw;
+                this.formFile.append("file2", this.file2);
+                this.imageUrl2 = URL.createObjectURL(this.file2);
+            },
+            beforeAvatarUpload(file) {
+                const isJPGPNG = (file.type === 'image/jpeg'||file.type === 'image/png');
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPGPNG) {
+                this.$message.error('上传图片只能是 JPG 或 PNG 格式!');
+                }
+                if (!isLt2M) {
+                this.$message.error('上传图片大小不能超过 2MB!');
+                }
+                return isJPGPNG && isLt2M;
+            },
+            idenAuth(){
+                if(this.file1&&this.file2){
+                    this.formFile.append('UID', this.UID);
+                    this.$http.post('idenAuth.php', /*{ UID:this.UID }*/ this.formFile).then(
+                        function (res) {
+                            // console.log(res);
+                            // alert(res.body);
+                            if(res.body==1){
+                                this.errorState = 0;
+                                this.stepActive = 2;
+                            }
+                    });
+                }
+                else{
+                    alert("请上传身份证正反面照片！");
+                }
+            },
+            handleSelect: function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            goAuth(){
+                u="searchAuth.html?content="+this.searchContent;
+                window.location.href=encodeURI(u);
+            },
+            search:function(){
+                //发送get请求
+                if(this.input3.trim()=="")
+                {
+                    this.$message('输入内容为空');
+                    return;
+                }
+                this.searchContent=this.input3.trim();
+                this.searchId=parseInt(this.select);
+                window.open("search.html?id="+this.select+"&content="+this.input3.trim(), '_self');
+                //location.search="?id="+this.select+"&content="+this.input3.trim();
+                history.replaceState({status: 0}, "", u);
+                //this.getInfo()
+                //this.currentPage=1
+            },
+            submitForm2(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('login.php',{nickname:this.ruleForm2.uName,password:this.ruleForm2.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r.result==0)
+                                {
+                                    $.cookie('_UserName', this.ruleForm2.uName, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserId', r.id, { expires: 7 ,path: '/' });
+                                    $.cookie('_PersonUrl', r.avator, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserType', r.type, { expires: 7 ,path: '/' });
+                                    $.cookie('_PassWord', this.ruleForm2.pass, { expires: 7 ,path: '/' });
+                                    this.user_op1="个人中心";
+                                    this.person_url=$.cookie('_PersonUrl') 
+                                    this.$message("登录成功")
+                                }
+                                else if(r.result==2)
+                                {
+                                    this.$message("密码错误")
+                                }
+                                else if(r.result==3)
+                                {
+                                    this.$message("用户已登录")
+                                }
+                                else if(r.result==1)
+                                {
+                                    this.$message("用户不存在")
+                                }
+                                else
+                                {
+                                    this.$message("登录失败，请检查网络状况后重新尝试")
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('登录失败')
+                        return false;
+                    }
+                });    
+                this.loginDialog=false;
+            },
+            //清空表单
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('register.php',{nickname:this.ruleForm.age,password:this.ruleForm.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r==0)
+                                {
+                                    this.$message('注册成功');
+                                }
+                                else if(r==1)
+                                {
+                                    this.$message('用户名已存在');
+                                }
+                                else
+                                {
+                                    this.$message('注册失败，请检测网络状况后重新尝试');
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('注册信息不全');
+                        return false;
+                    }
+                });              
+                this.loginDialog=false;
+            },
+            //点击用户头像
+            handleCommand: function(command) {
+                if(command=='a')
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //跳转到个人中心
+                        if($.cookie('_UserType')=="3")
+                            window.location.href="checkAuth.html"; 
+                        else
+                            window.location.href="personal_index.html"; 
+                    }
+                    else
+                    {
+                        this.loginDialog=true;
+                    }
+                }
+                else
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //logout
+                        this.$http.post('logout.php',{userId:$.cookie('_UserId'),},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                console.log(r);
+                                if(r==0)
+                                {
+                                    this.$message('退出登录');
+                                    $.removeCookie('_UserId' ,{path:'/'});
+                                    $.removeCookie('_UserName' ,{path:'/'});
+                                    $.removeCookie('_PassWord' ,{path:'/'});
+                                    $.removeCookie('_UserType' ,{path:'/'});
+                                    $.removeCookie('_PersonUrl' ,{path:'/'});
+                                    this.person_url='./img/person_def.png';
+                                    this.user_op1='登录'
+                                }
+                                else
+                                {
+                                    this.$message('操作失败，请检测网络状况后重新尝试');
+                                }
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    }
+                    else
+                    {
+                        this.$message("未登录")
+                    }
+                    
+                }
+            },
+        }
+    });
+    vm.selectAuth();
+</script>

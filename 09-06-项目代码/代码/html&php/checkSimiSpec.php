@@ -10,7 +10,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "resource_sharing");
+mysqli_select_db($con, "test");
 
 $sql=("select * from specialist where id in ".
     "(select SA2.sid from specialist_achievement SA1, specialist_achievement SA2 where SA1.aid=SA2.aid and SA1.sid='$SID' and SA1.sid<>SA2.sid)");
