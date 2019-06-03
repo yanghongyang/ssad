@@ -6,12 +6,13 @@
     <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
     <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <link rel="stylesheet" type="text/css" href="css/loader.css">
+    <link rel="stylesheet" type="text/css" href="css/loader.min.css">
 </head>
 <body style="margin: 0px;">
 <script src="//unpkg.com/vue/dist/vue.js"></script>
 <script src="//unpkg.com/element-ui@2.8.2/lib/index.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="js/jquery.cookie.js" type="text/javascript"></script>
 <div id="app">
     <!--导航栏-->
@@ -24,16 +25,14 @@
             background-color="#545c64"
             text-color="#fff"
             active-text-color="#ffd04b">
-        <el-menu-item index='1' style="width: 8%;min-width:150px;" @click.native="Reload_index">
+        <el-menu-item index='1' style="width: 8%;min-width:100px;" @click.native="Reload_index">
             <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
         <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goSearch">学术检索</el-menu-item>
         <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">学者频道</el-menu-item>
         <!--<el-image src="./img/logo_top.png" style="margin-top: 5px;margin-bottom: 5px"></el-image>-->
         <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">
-            <el-select v-model="select" slot="prepend" >
-                <el-option label="摘要" value="1"></el-option>
-                <el-option label="标题" value="2"></el-option>
-                <el-option label="全文" value="3"></el-option>
+            <el-select v-model="selectAuth" slot="prepend" >
+                <el-option label="专家" value="1"></el-option>
             </el-select>
             <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
         </el-input>
@@ -51,6 +50,12 @@
             </el-dropdown-menu>
         </el-dropdown>
     </el-menu>
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+        <div class="load_title">欢迎访问星澄学术<br><span>V1.0</span></div>
+    </div>
     <el-row>
         <el-col :span="1"><div class="grid-content"></div></el-col>
         <!--主体内容-->
@@ -62,11 +67,11 @@
                 </div>
                 <!--来源、收藏-->
                 <div style="line-height: 1.5; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
-                    <span>来自 {{firstsource}} </span>
+                    <span>来自 {{source}}</span>
                     <span>&nbsp;|&nbsp;</span>
                     <span>
-                        <a class="el-icon-star-off" id="collection" @click="collect">
-                            收藏
+                        <a class="el-icon-star-off">
+                            收藏 {{clectCnt}}
                         </a>
                         &nbsp; &nbsp;阅读量 {{readCnt}}
                     </span>
@@ -78,9 +83,9 @@
                         作者：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </el-col>
                     <el-col :span="22">
-                            <a :href="'./expert.html?UID='+userID+'&SID='+authors['sid']" target="_blank" style=" color:#3A66C8; text-decoration:none;" v-for="authors in author">
-                                {{authors.name}}&nbsp
-                            </a>
+                        <a :href="'./expert.html?UID='+userID+'&SID='+authors['sid']" target="_blank" style=" color:#3A66C8; text-decoration: none" v-for="authors in author">
+                            {{authors.name}}&nbsp
+                        </a>
                     </el-col>
                 </div>
                 <!--摘要-->
@@ -97,7 +102,7 @@
 
                             <el-col :span="22">
                                 <div>
-                                    <el-link type="primary" style=" color:#3A66C8;"  :href="'./search.html?id=2&content='+keywords">
+                                    <el-link type="primary" style=" color:#3A66C8;"  @click="">
                                     {{keywords}}
                                     </el-link>
                                 </div>
@@ -105,10 +110,10 @@
                     </span>
                 </div>
                 <!--DOI-->
-                <div  style="line-height: 1.7; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
+                <div style="line-height: 1.7; font-size: 15px; color: #999;; margin-left: 45px; font-family: Arial;">
                     <span>
-                        <el-col :span="2"><div id="doi">DOI：</div></el-col>
-                        <el-col :span="22"><div id="doiv">{{doi}}</div></el-col>
+                        <el-col :span="2"><div>DOI：</div></el-col>
+                        <el-col :span="22"><div>&nbsp;&nbsp;{{doi}}</div></el-col>
                     </span>
                 </div>
                 <!--被引量-->
@@ -119,7 +124,7 @@
                         </a>
                     </span>
                 </div>
-                <!--收藏、引用、分享
+                <!--收藏、引用、分享-->
                 <div style=" font-size: 15px; margin-left: 45px;  font-family: Arial;">
                     <el-col :span="3"><el-button type="primary" style="margin-top:10px; width: 90%; " round><> 引用</el-button></el-col>
                     <el-col :span="3">
@@ -127,14 +132,26 @@
                             分享
                         </el-button>
                     </el-col>
-                </div> -->
+                </div>
                 <!--全部来源、全文下载-->
                 <div style="margin-left: 45px; font-weight: bold; font-family: Arial;">
                     <el-col :span="24" style="margin-top: 30px;">
                         <el-tabs type="border-card" v-model="activeName1" @tab-click="handleClick1">
                             <el-tab-pane label="全部来源" name="allsource">
-                                <el-col :span="12" v-for="source in sourceList" >
-                                    <el-link :href="source.hr" class="allsources" target="_blank">{{source.sN}}</el-link>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">Springer</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">The Lancet</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">ResearchGate</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">EBSCO</el-link>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-link href="#" class="allsources">360 Link</el-link>
                                 </el-col>
                             </el-tab-pane>
                             <!--
@@ -203,26 +220,14 @@
                 </div>
             </div>
         </el-col>
-        <el-col :span="6" style="margin-left: 10px;">
+        <el-col :span="6">
             <el-card class="box-card">
-                <div slot="header" class="clearfix" >
+                <div slot="header" class="clearfix">
                     <span>评论</span>
                     <el-button style="float: right;" type="text" @click="addComment">+&nbsp;&nbsp;&nbsp;添加评论</el-button>
                 </div>
-                <div v-for="comm in comments.slice((commcurrentPage-1)*commPageSize,commcurrentPage*commPageSize)" class="text item" >
-                    <el-row>{{comm.nickname}}</el-row>
-                    <el-row>{{comm.time}}</el-row>
-                    <el-row>{{comm.content}}</el-row>
-                    <el-divider></el-divider>
-                </div>
-                <div class="block">
-                    <el-pagination
-                            layout="prev, pager, next"
-                            :total= commTotal
-                            :page-size="commPageSize"
-                            @current-change="commCurentChange"
-                            style="padding: 10px 0; text-align: center;">
-                    </el-pagination>
+                <div v-for="comm in comments" :key="o" class="text item">
+                    {{comm}}
                 </div>
             </el-card>
         <el-col :span="1">
@@ -349,7 +354,6 @@
 </style>
 
 <script>
-
     document.onreadystatechange = subSomething;
     function subSomething() {
         //当页面加载状态
@@ -363,7 +367,20 @@
         $('body').addClass('loaded');
         $('#loader-wrapper .load_title').remove();
     });
-
+    function created() {
+        //判断是否登录
+        if($.cookie('_UserId')!=null) {
+            this.user_op1="个人中心";
+            if($.cookie('_PersonUrl')!=null)
+            {
+                this.person_url=$.cookie('_PersonUrl')
+            }
+        }
+        else{
+            this.user_op1="登录";
+        }
+        this.getInfo();
+    }
     function getQueryString(name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
         var r =  window.location.search.substr(1).match(reg);
@@ -450,21 +467,20 @@
                 },
                 user_op1:"登录", //点击用户之后弹出的选项
                 loginDialog: false, //控制登录的dialog
-                activeIndex1: '2',
-                input1: '',
-                input2: '',
-                input3: '',
-                select: "2",
-                selectAuth:"1",
-                person_url: './img/person_def.png',
-                isAuthSearch: false,
                 actTab:"first",
                 title: '',
                 sourceList: [],
                 activeIndex: '1',
+                activeIndex2: '1',
+                activeIndex1: '2',
+                input1: '',
+                input2: '',
+                input3: '',
+                select: '',
                 fits: ['cover'],
                 url: '',
                 clectCnt: '',
+                readCnt: '',
                 authorList: [],
                 abstract: '',
                 citedNum: '',
@@ -475,7 +491,7 @@
                 userID: '1',
                 userName: '林未',
                 keywords: "",
-                sourceList: [],
+                source: "",
                 author: [],
                 doi: "",
                 similarList: [],
@@ -483,30 +499,12 @@
                 pageSize: 2,
                 currentPage: 1,
                 total: 0,
+                user_op1: "个人中心",
+                person_url: './img/person_def.png',
                 comments: [],
-                firstsource:'',
-                sourceName:'',
-                commcurrentPage: 1,
-                commPageSize: 3,
-                commTotal:0,
-                sourceL:[],
-                sourceList:[]
+                selectAuth:"1",
             };
         },
-    created() {
-        //判断是否登录
-        if($.cookie('_UserId')!=null) {
-
-            this.user_op1="个人中心";
-            if($.cookie('_PersonUrl')!=null)
-            {
-                this.person_url=$.cookie('_PersonUrl')
-            }
-        }
-        else{
-            this.user_op1="登录";
-        }
-    },
         methods: {
             createPerson: function () {
                 this.people.push(this.newPerson);
@@ -592,78 +590,8 @@
                     this.citedNum = workInfo[0]["cited"];
                     this.keywords = workInfo[0]["keyword"];
                     this.doi = workInfo[0]["doi"];
-                    if(this.doi == "")
-                    {
-                        document.getElementById("doi").style.display="none";//隐藏
-                        document.getElementById("doiv").style.display="none";//隐藏
-                    }
-                    //查看资源来源
-                    var tmp = workInfo[0]["source1"];
-                    tmp = tmp.split(".");
-                    if(tmp[1] == "cqvip")
-                    {
-                        this.firstsource = "维普";
-                    }
-                    else if(tmp[1] == "wanfangdata")
-                    {
-                        this.firstsource = "万方";
-                    }
-                    else if(tmp[1] == "cnki")
-                    {
-                        this.firstsource = "知网";
-                    }
-                    else if(tmp[1] == "ixueshu")
-                    {
-                        this.firstsource = "爱学术";
-                    }
-                    var tmp = new Array();
-                    tmp.push(workInfo[0]["source1"]);
-                    if(workInfo[0]["source2"] != null)
-                    {
-                        tmp.push(workInfo[0]["source2"]);
-                    }
-                    if(workInfo[0]["source3"] != null)
-                    {
-                        tmp.push(workInfo[0]["source3"]);
-                    }
-                    if(workInfo[0]["source4"] != null)
-                    {
-                        tmp.push(workInfo[0]["source4"]);
-                    }
-                    this.sourceL = tmp;
-                    console.log(this.sourceL);
-                    var t1 = new Array();
-                    var t = this.sourceL;
-                    var sourceName;
-                    for(var i = 0; i < t.length; i++)
-                    {
-                        var tmp = t[i].split(".");
-
-                        if(tmp[1] == "cqvip")
-                        {
-                            sourceName = "维普";
-                        }
-                        else if(tmp[1] == "wanfangdata")
-                        {
-                            sourceName = "万方";
-                        }
-                        else if(tmp[1] == "cnki")
-                        {
-                            sourceName = "知网";
-                        }
-                        else if(tmp[1] == "ixueshu")
-                        {
-                            sourceName = "爱学术";
-                        }
-                        else
-                        {
-                            sourceName = tmp[1]+'.'+tmp[2];
-                        }
-                        let obj = {"hr": t[i], "sN": sourceName};
-                        t1.push(obj);
-                    }
-                    this.sourceList=t1;
-                    console.log(this.sourceList);
+                    this.source = workInfo[0]["source1"];
+                    this.sourceList = workInfo[0];
                 });
             },
             //资源作者
@@ -674,22 +602,11 @@
                     this.author = res.body;
                 });
             },
-            //收藏
-            collect: function(){
-                this.$http.post('collect.php',{ PID: this.paperID, UID: this.userID}, {emulateJSON: true}).then(function(res){
-                    console.log(res.body);
-                    let collect = document.getElementById("collection");
-                    collect.classList.toggle("el-icon-star-on");
-                });
-            },
             //查看评论
             checkComment: function () {
-                this.$http.post('checkComment.php', {id: this.paperID}, {emulateJSON: true}).then(function (res) {
+                this.$http.post('checkComment.php', {paperID: this.paperID}, {emulateJSON: true}).then(function (res) {
                     console.log(this.paperID)
                     console.log(res.body);
-                    this.comments = res.body;
-                    this.commTotal = Math.ceil(this.comments.length / this.commPageSize)+1;
-                    console.log(this.commTotal)
                 });
             },
             //阅读量
@@ -700,7 +617,7 @@
                     //console.log(res.body);
                     var workInfo = res.body;
                     this.similarList = res.body;
-                    this.total = Math.ceil(this.similarList.length / this.pageSize)+1;
+                    this.total = Math.ceil(this.similarList.length / this.pageSize);
                     //alert(this.total);
                 });
             },
@@ -708,10 +625,6 @@
             //分页操作
             currentChange: function (currentPage) {
                 this.currentPage = currentPage;
-            },
-            //评论分页
-            commCurentChange: function(commCurrentPage) {
-                this.commcurrentPage = commCurrentPage;
             },
             //搜索
             search: function () {
@@ -726,49 +639,39 @@
                 //location.search="?id="+this.select+"&content="+this.input3.trim();
                 history.replaceState({status: 0}, "", u);
                 this.getInfo()
-
                 this.currentPage = 1
-                window.location.href=encodeURI(u);
             },
             addComment: function () {
-                if($.cookie('_UserId')!=null) {
-                    this.$prompt('', '评论', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        inputPattern: /^.{1,140}$/,
-                        inputErrorMessage: '填写内容长度在1到140字符之间！'
-                    }).then(({value}) => {
-                        this.$http.post('comment.php', {
-                        userId: this.userID,
-                        content: value,
-                        paperID: this.paperID
-                    }, {emulateJSON: true}).then(function (res) {
-                        //alert(res.body);
-                        console.log(value);
-                        console.log(res.body);
-                        //alert(this.total);
-                    });
-                    this.$message({
-                        type: 'success',
-                        message: '提交成功！',
+                this.$prompt('', '评论', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    inputPattern: /^.{1,140}$/,
+                    inputErrorMessage: '填写内容长度在1到140字符之间！'
+                }).then(({value}) => {
+                    this.$http.post('comment.php', {
+                    userId: this.userID,
+                    content: value,
+                    paperID: this.paperID
+                }, {emulateJSON: true}).then(function (res) {
+                    //alert(res.body);
+                    console.log(value);
+                    console.log(res.body);
+                    //alert(this.total);
+                });
+                this.$message({
+                    type: 'success',
+                    message: '提交成功！',
 
-                    });
-                }).
-                    catch(() => {
-                        this.$message({
-                        type: 'info',
-                        message: '取消评论'
-                    });
-                })
-                    ;
-                }
-                else
-                {
-                    this.$alert('请先登录', '警告', {
-                        confirmButtonText: '确定'
-                    });
-                }
+                });
+            }).catch(() => {
+                    this.$message({
+                    type: 'info',
+                    message: '取消评论'
+                });
+            })
+                ;
             },
+
             //点击用户头像
             handleCommand: function (command) {
                 if (command == 'a') {
@@ -911,7 +814,7 @@
                 if(u.indexOf("?")>-1){
                     var paraStr=u.split("?")[1];
                     this.searchContent=paraStr.split("=")[1].trim()
-                    this.$http.post('solrSearch.php',{specname:this.searchContent},{emulateJSON:true}).then(
+                    this.$http.post('searchSpec.php',{specname:this.searchContent},{emulateJSON:true}).then(
                             function(res){
                                 this.info=res.body;
                             },
@@ -941,6 +844,19 @@
                 var i="1"
                 u="expert.html?UID="+i+"&SID="+index;
                 window.location.href=encodeURI(u);
+            },
+            search:function(){
+                //发送get请求
+                if(this.input3.trim()=="")
+                {
+                    this.$message('输入内容为空');
+                    return;
+                }
+                this.searchContent=this.input3.trim();
+                u="searchAuth.html?content="+this.input3.trim();
+                history.replaceState({status: 0}, "", u);
+                this.getInfo()
+                this.currentPage=1
             }
         }
     });

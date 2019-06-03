@@ -1,104 +1,64 @@
 <?php
+header("Content-Type:text/html;charset=UTF-8");
+//content:搜索内容(人名)
+$content=urlencode($_POST["specname"]);
 
-$specName = $_POST['specname'];
-//$specName = "林未";
+$url = 'http://123.206.68.192:8080/solr/new_core2/select?q=name:'.$content.'&rows=100';
+
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url );
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_HEADER,0);
+$output = curl_exec($ch);
+$arr = json_decode($output, true);
+//列表的长度
+$len = count($arr['response']['docs']);
+//echo $len;
+
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
 //如果连接错误
-if (mysqli_connect_errno()) {
-    echo "连接失败"; //数据库连接失败
-    $con = null;
+if(mysqli_connect_errno()){
+    //echo 3; //数据库连接失败
+    $con=null;
     exit;
 }
-mysqli_set_charset($con, 'utf8');
+mysqli_set_charset($con,'utf8');
 mysqli_select_db($con, "resource_sharing");
 
-//name, affialition
-$data=array();
-//全字匹配
-$sql=("select specialist.id as specID, specialist.name as specName, affiliation as institute, sum(cited) as cited, count(*) as workNum ".
-    "from specialist, specialist_achievement, achievement, paper ".
-    "where specialist.id=specialist_achievement.sid and specialist_achievement.aid=achievement.id and achievement.id=paper.id and specialist.name='$specName' ".
-    "group by specialist.id ");
-$runSQL=mysqli_query($con, $sql);
-if($runSQL){
-    while($row = mysqli_fetch_assoc($runSQL)){
-        array_push($data, $row);
-    }
-}
 
-//模糊匹配
-$sql=("select specialist.id as specID, specialist.name as specName, affiliation as institute, sum(cited) as cited, count(*) as workNum ".
-    "from specialist, specialist_achievement, achievement, paper ".
-    "where specialist.id=specialist_achievement.sid and specialist_achievement.aid=achievement.id and achievement.id=paper.id and specialist.name<>'$specName' and locate('$specName', specialist.name)>0 ".
-    "group by specialist.id ");
-$runSQL=mysqli_query($con, $sql);
-if($runSQL){
-    while($row = mysqli_fetch_assoc($runSQL)){
-        array_push($data, $row);
-    }
-}
+$res = array();
 
+for($i = 0;$i<$len;$i++)
+{
+    $tempID = $arr['response']['docs'][$i]['id'];
+    //$tempID = (int)$tempID;
+    //echo $tempID.'\n';
+    $sqlcheck=("select id, name , affiliation  ".
+        "from specialist  ".
+        "where id='$tempID'");
 
-$sql=("select id as specID, name as specName, affiliation as institute from specialist where name='$specName'");
-$runSQL=mysqli_query($con, $sql);
-$len=count($data);
-if($runSQL){
-    while ($row = mysqli_fetch_assoc($runSQL)){
-        $ok=0;
-        for($i=0; $i<$len; $i++){
-            if($data[$i]["specID"]==$row["specID"]){
-                $ok=1;
-                break;
-            }
-        }
-        if($ok==0) {
-            $row["workNum"]="0";
-            $row["cited"]="0";
-            array_push($data, $row);
-        }
-    }
-}
-
-$sql=("select id as specID, name as specName, affiliation as institute from specialist where name<>'$specName' and  locate('$specName', specialist.name)>0 ");
-$runSQL=mysqli_query($con, $sql);
-$len=count($data);
-if($runSQL){
-    while ($row = mysqli_fetch_assoc($runSQL)){
-        $ok=0;
-        for($i=0; $i<$len; $i++){
-            if($data[$i]["specID"]==$row["specID"]){
-                $ok=1;
-                break;
-            }
-        }
-        if($ok==0) {
-            $row["workNum"]="0";
-            $row["cited"]="0";
-            array_push($data, $row);
-        }
-    }
-}
-
-$len=count($data);
-//头像URL设置
-for ($i=0; $i<$len; $i++){
-    $tmp=$data[$i]['specID'];
-    $avatorSQL = ("select avator from user where expert='$tmp'");
-    $runAvatorSQL = mysqli_query($con, $avatorSQL);
-    if($runAvatorSQL){
-        $tmp = mysqli_fetch_assoc($runAvatorSQL);
-        if($tmp["avator"]){
-            $data[$i]['avator'] = $tmp["avator"];
-        } else {
-            $data[$i]['avator'] = "http://www.zdoubleleaves.cn/avator/default.jpg";
-        }
+    $runcheck = mysqli_query($con, $sqlcheck);
+    $row = mysqli_fetch_assoc($runcheck);
+    $avatorSQL=("select avator from user where expert='$tempID'");
+    $runAvatorSQL=mysqli_query($con, $avatorSQL);
+    $fuck=0;
+    if($tmpRow=mysqli_fetch_assoc($runAvatorSQL)){
+        $row['avator']=$tmpRow["avator"];
     } else {
-        $data[$i]['avator'] = "http://www.zdoubleleaves.cn/avator/default.jpg";
+        $row['avator']="http://123.206.68.192/avator/expert.png";
     }
+
+
+    $res[] = $row;
+
+
 }
-//echo count($data);
-$json = json_encode($data);
+
+//var_dump($res);
+$json = str_replace("\\/", "/", json_encode($res,JSON_UNESCAPED_UNICODE));
+//
+//curl_close($ch);
+//
 echo $json;
-// var_dump($data);
-//echo $data;

@@ -25,7 +25,7 @@
             background-color="#545c64"
             text-color="#fff"
             active-text-color="#ffd04b">
-        <el-menu-item index='1' style="width: 8%;min-width:100px;" @click.native="Reload_index">
+        <el-menu-item index='1' style="width: 8%;min-width:150px;" @click.native="Reload_index">
             <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
         <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" >学术检索</el-menu-item>
         <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goAuth">学者频道</el-menu-item>
@@ -57,10 +57,10 @@
         <div style="height: 8%"></div>
         <div style="width:55%; margin: 0 auto">
             <template>
-                <div>
+                <div v-loading="loading">
                     <div>找到约{{info.length}}条相关结果:</div>
                     <el-divider></el-divider>
-                    <div v-for="(value,index) in info.slice((currentPage- 1)*pagesize,currentPage*pagesize)">
+                    <div v-for="(value,index) in info.slice((currentPage- 1)*pagesize,currentPage*pagesize)"  >
                         <div>
                             <el-row>
                                 <el-link type="primary" v-html="value.title"  @click="checkDet(value.id)" style="font-size: 18px;font-weight: 400;"></el-link>
@@ -70,10 +70,10 @@
                                 <div v-html="value.abstract" style="color: #666"></div>
                             </el-row>
                             <el-row>
-                                <div>{{value.author}}   - 被引量:{{value.cited}}  -时间:{{value.date}}</div>
+                                <div>{{value.author}}&nbsp;&nbsp;&nbsp;&nbsp;-被引量:{{value.cited}}&nbsp;&nbsp;&nbsp;&nbsp;-时间:{{value.date}}</div>
                             </el-row>
                             <el-row>
-                                <el-tag >类型:{{value.database}}</el-tag>
+                                <el-tag >类型:{{value.type}}</el-tag>
                                 <el-tag >关键词:{{value.keyword}}</el-tag>
                             </el-row>
                         </div>
@@ -302,6 +302,7 @@
                 currentPage:1,
                 info:[],
                 pagesize:5,
+                loading:false
             };
         },
         created() {  
@@ -404,6 +405,7 @@
                 this.newPerson = {name: '', age: 0, sex: 'Male'}
             },
             getInfo(){
+                this.loading=true
                 var u=decodeURI(location.search);
                 if(u.indexOf("?")>-1){
                     var paraStr=u.split("?")[1];
@@ -417,11 +419,23 @@
                                 this.info=res.body;
                                 for(i=0;i<this.info.length;i++)
                                 {
-                                    this.info[i].title=this.htmlEscape(this.info[i].title)
-                                    this.info[i].abstract=this.htmlEscape(this.info[i].abstract) 
+                                    str=this.htmlEscape(this.info[i].title)
+                                    this.info[i].title='<p>'+str+'</p>'
+                                    stra=this.htmlEscape(this.info[i].abstract)
+                                    this.info[i].abstract='<p>'+stra+'</p>'
                                     if(this.info[i].author=="")
-                                        this.info[i].author="佚名"             
+                                        this.info[i].author="佚名"
+                                    if(this.info[i].type==1)
+                                        this.info[i].type='论文'
+                                    if(this.info[i].keyword!=null)
+                                    {
+                                        if(this.info[i].keyword.length>50)
+                                        {
+                                            this.info[i].keyword=this.info[i].keyword.substring(0,50)+'...'
+                                        }
+                                    }
                                 }
+                                this.loading=false
                             },
                             function(res){console.log(res.status);}
                         );
@@ -444,6 +458,7 @@
                     });
                 }
                 this.input3=this.searchContent;
+                //this.loading=false
             },
             goAuth(){
                 u="searchAuth.html?content="+this.searchContent;
@@ -514,6 +529,8 @@
                 window.location.href="index.html";
             },
             htmlEscape(str) {
+                if(str==null)
+                    return
                 str=str.replace(/&lt;/g,"<")
                 str=str.replace(/&gt;/g,">")
                 return str

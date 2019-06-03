@@ -25,7 +25,7 @@
             background-color="#545c64"
             text-color="#fff"
             active-text-color="#ffd04b">
-        <el-menu-item index='1' style="width: 8%;min-width:100px;" @click.native="Reload_index">
+        <el-menu-item index='1' style="width: 8%;min-width:150px;" @click.native="Reload_index">
             <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
         <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goSearch">学术检索</el-menu-item>
         <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center">学者频道</el-menu-item>
@@ -72,7 +72,7 @@
         </div>-->
         <div style="width:55%; margin: 0 auto">
             <template>
-                <div>
+                <div v-loading="loading">
                     <div>找到约{{info.length}}条相关结果:</div>
                     <el-divider></el-divider>
                     <div v-for="(value,index) in info.slice((currentPage- 1)*pagesize,currentPage*pagesize)" >
@@ -84,13 +84,10 @@
                                 <el-col :span="20">
                                     <el-row></el-row>
                                     <el-row  style="display: flex;align-items: center;" :gutter="5">
-                                        <el-col :span="3" >
-                                            <el-link type="primary" v-html="value.specName"  @click="checkDet(value.specID)" style="font-size: 18px;font-weight: 400;"></el-link>
-                                        </el-col >
-                                        <el-col :span="21" :offset="1">{{value.institute}}</el-col>
+                                        <el-link type="primary" v-html="value.name"  @click="checkDet(value.id)" style="font-size: 18px;font-weight: 400;"></el-link>                                    
                                     </el-row>
                                     <el-row style="color: #666;font-size:14px"> 
-                                        发表文章：{{value.workNum}}&nbsp;&nbsp;&nbsp;&nbsp;被引数量：{{value.cited}} 
+                                        机构：{{value.affiliation}}
                                     </el-row>
                                 </el-col>
                             </el-row>
@@ -315,7 +312,8 @@
                 info:[],
                 pagesize:5,
                 fit:"fill",
-                isRouterAlive:true
+                isRouterAlive:true,
+                loading:true
             };
         },
         created() {         
@@ -417,6 +415,7 @@
                 window.location.href="index.html";
             },
             getInfo(){
+                this.loading=true
                 var u=decodeURI(location.search);
                 if(u.indexOf("?")>-1){
                     var paraStr=u.split("?")[1];
@@ -424,6 +423,7 @@
                     this.$http.post('searchSpec.php',{specname:this.searchContent},{emulateJSON:true}).then(       
                         function(res){
                             this.info=res.body;
+                            this.loading=false
                         },
                         function(res){console.log(res.status);}
                     );
@@ -436,6 +436,7 @@
                     });
                 }
                 this.input3=this.searchContent;
+                //this.loading=false
             },
             handleSelect: function(key, keyPath) {
                 console.log(key, keyPath);

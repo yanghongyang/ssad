@@ -42,7 +42,7 @@ $output = curl_exec($ch);
 $arr = json_decode($output, true);
 //列表的长度
 $len = min(500,count($arr['response']['docs']));
-echo $len;
+//echo $len;
 
 
 $con=@new mysqli("123.206.68.192", "mysqluser", "16211621");
