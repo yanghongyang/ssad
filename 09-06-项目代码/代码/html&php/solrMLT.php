@@ -4,7 +4,7 @@ header("Content-Type:text/html;charset=UTF-8");
 //id:需要匹配的科技成果id
 $id = $_POST["id"];
 
-$url = 'http://123.206.68.192:8080/solr/new_core/select?&mlt=true&mlt.fl=abstract,cat&mlt.mindf=1&mlt.mintf=1&fl=id,score&q=id:'.$id;
+$url = 'http://123.206.68.192:8080/solr/new_core/select?&mlt=true&mlt.fl=abstract,cat&mlt.mindf=1&mlt.mintf=1&fl=id,score&q=id:'.$id.'&rows=100';
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url );
@@ -14,7 +14,7 @@ $output = curl_exec($ch);
 
 $arr = json_decode($output, true);
 //列表的长度
-$len = count($arr['moreLikeThis'][$id]['docs']);
+$len = min(500,count($arr['moreLikeThis'][$id]['docs']));
 //echo $len;
 
 
@@ -26,7 +26,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 
 
 $res = array();
