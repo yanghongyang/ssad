@@ -15,7 +15,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 $sqlcheck = ("select count(*) from user where nickname = '$uname';" );
 $runcheck = mysqli_query($con, $sqlcheck);
 $resultcheck = mysqli_fetch_array($runcheck);

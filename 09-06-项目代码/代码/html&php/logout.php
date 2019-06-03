@@ -9,7 +9,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 $sqlcheck = ("select islogin from user where id = '$uid';" );
 $runcheck = mysqli_query($con, $sqlcheck);
 $resultcheck = mysqli_fetch_array($runcheck);

@@ -42,7 +42,7 @@ else  if ((($_FILES["file"]["type"] == "application/pdf")))
                 "./pdf/".$name);
 
      $url="http://www.zdoubleleaves.cn/rsp/pdf/".$name;
-     $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","test");
+     $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","resource_sharing");
      mysqli_set_charset($con,"utf8");
      mysqli_query($con,"insert into achievement(title,abstract,time,url,type) values('$title', '$abstract', '$date','$url', 1);");
      $id = mysqli_insert_id($con);

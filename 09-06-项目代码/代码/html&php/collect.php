@@ -11,7 +11,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 
 $sql = ("select * from collection where uid='$UID' and pid='$PID'");
 $runSQL = mysqli_query($con, $sql);

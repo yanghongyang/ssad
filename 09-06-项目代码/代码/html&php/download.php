@@ -13,7 +13,7 @@ if(mysqli_connect_errno()){
     exit;
 }
 mysqli_set_charset($con,'utf8');
-mysqli_select_db($con, "test");
+mysqli_select_db($con, "resource_sharing");
 
 $time = time();
 $lasttime = date('Y-m-d H:i:s', $time);
