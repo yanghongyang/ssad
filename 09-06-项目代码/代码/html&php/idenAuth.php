@@ -3,8 +3,8 @@
 //参数：file1是正面，file2是反面
 //userID是一个整数
 
-//$userID=$_POST["userID"];
-$userID = 1;
+$userID=$_POST["UID"];
+// $userID = 199;
 
 $name = password_hash($userID,PASSWORD_DEFAULT);
 
@@ -18,7 +18,7 @@ $text=$name.'111.png';
 
 if($_FILES["file1"]["error"])
 {
-    echo $_FILES["file1"]["error"];
+    //echo $_FILES["file1"]["error"];
     echo 0;
 }
 else
@@ -35,7 +35,7 @@ else
 
         //连接数据库更新头像的文件名
         $image_url="http://www.zdoubleleaves.cn/rsp/IDimg/".$text;
-        $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","resource_sharing");
+        $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","test");
         mysqli_query($con,"UPDATE user SET identity1= '$image_url'WHERE id='$userID'");
         mysqli_close($con);
 
@@ -43,8 +43,8 @@ else
     }
     else
     {
-        echo"文件过大或类型不对";
-       echo 0;
+        //echo"文件过大或类型不对";
+        echo 0;
     }
 
 
@@ -55,7 +55,7 @@ $text1=$name.'222.png';
 
 if($_FILES["file2"]["error"])
 {
-    echo $_FILES["file2"]["error"];
+    //echo $_FILES["file2"]["error"];
     echo 0;
 }
 else
@@ -75,15 +75,19 @@ else
 
         //连接数据库更新头像的文件名
         $image_url="http://www.zdoubleleaves.cn/rsp/IDimg/".$text1;
-        $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","resource_sharing");
-        mysqli_query($con,"UPDATE user SET identity2= '$image_url'WHERE id='$userID'");
+        $con = mysqli_connect("123.206.68.192","mysqluser", "16211621","test");
+        mysqli_query($con,"UPDATE user SET identity2= '$image_url' WHERE id='$userID';");
+        
+        $ttime = date("Y-m-d H:i:s",time());
+        mysqli_query($con,"INSERT into  certification (applicant,time) VALUES ('$userID','$ttime');");
+
         mysqli_close($con);
 
         echo 1;
     }
     else
     {
-        echo"文件过大类型不对";
+        //echo"文件过大类型不对";
         echo 0;
     }
 
