@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>下载记录</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" type="text/css" href="css/loader.min.css">
+     <!-- 引入组件库 -->
+      <script src="https://unpkg.com/vue/dist/vue.js"></script>
+      <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+      <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+      <link href="a.css" rel="stylesheet" type="text/css"/>
+  </head>
+     
+  <body>
+      <div id="app">
+      <!--导航栏-->
+      <el-menu
+                  :default-active="activeIndex1"
+                  class="el-menu-demo"
+                  mode="horizontal"
+                  @select="handleSelect"
+                  background-color="#545c64"
+                  text-color="#fff"
+                  type="flex" justify="center"
+                  active-text-color="#ffd04b">
+              <el-menu-item index='1' style="width: 5%;min-width:80px;" @click.native="Reload_index">
+                  <img src='./img/logo.png' style="width: 45px; height: 45px;border-radius:50%;overflow: hidden;"></el-menu-item>
+              <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=false">学术检索</el-menu-item>
+              <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="isAuthSearch=true">学者频道</el-menu-item>
+              <!--用户!-->
+              <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+          <span class="el-dropdown-link" >
+            <el-image
+                    style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                    :src="person_url"></el-image>
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+                  <el-dropdown-menu slot="dropdown" >
+                      <el-dropdown-item command="a">{{user_op1}}</el-dropdown-item>
+                      <el-dropdown-item command="b">退出</el-dropdown-item>
+                  </el-dropdown-menu>
+              </el-dropdown>
+      </el-menu>
+        <el-container style="height: 100%; border: 1px solid #eee">
+            <el-aside width="250px" style="background-color: rgb(238, 241, 246)">
+                <el-menu>
+                  <el-submenu index="1">
+                    <template slot="title" >个人信息</template>
+                    <el-menu-item-group>
+                      <el-menu-item index="1-1" @click.native="index">查看个人信息</el-menu-item>
+                      <el-menu-item index="1-2" @click.native="change_self_info">修改个人信息</el-menu-item>
+                    </el-menu-item-group>
+                  </el-submenu>
+                  <el-submenu index="2">
+                    <template slot="title" style="text-align: left">历史记录</template>
+                    <el-menu-item-group>
+                      <el-menu-item index="2-1" @click.native="download_history">下载记录</el-menu-item>
+                      <el-menu-item index="2-2" @click.native="browse_history">浏览记录</el-menu-item>
+                      <el-menu-item index="2-3" @click.native="comment_history">评论记录</el-menu-item>
+                    </el-menu-item-group>               
+                    </el-submenu>
+                  </el-submenu>
+                </el-menu>
+              </el-aside>
+              
+            <el-container>
+                <el-header style=" margin-left :100px;margin-top: 30px;margin-bottom: 20px; text-align: left; font-size: 20px">
+                    
+                    下载记录
+                  </el-header>
+              
+              <el-main>
+                <el-table :data="tableData" >
+                  <!--<el-table-column prop="DresourceURL" label="下载地址" >
+                  </el-table-column8>-->
+                  <el-table-column prop="title" label="题目" >
+                  </el-table-column>
+                  <el-table-column prop="author" label="作者">
+                  </el-table-column>
+                  <el-table-column prop="time" label="下载时间">
+                  </el-table-column>
+                  <el-table-column prop="citedNum" label="被引次数">
+                  </el-table-column>
+                </el-table>
+              </el-main>
+            </el-container>
+          </el-container>
+    </div>
+    <!-- built files will be auto injected -->
+    <script>
+        var Main = {
+            data() {
+              
+              return {
+                tableData: []
+              }
+              
+            },
+
+
+          created () {
+          this.getList()
+          },
+
+
+          methods : {
+            index(){
+        window.location.href = "index.html";
+      },
+      change_self_info(){
+        window.location.href = "change_self_info.html";
+      },
+      comment_history(){
+        window.location.href = "comment_history.html";
+      },
+      download_history(){
+        window.location.href = "download_history.html";
+      },
+      browse_history(){
+        window.location.href = "browse_history.html";
+      },
+
+
+            
+          //  获取数据
+            getList () {
+              this.$http.post('checkDresourse.php',{downloader:2},{emulateJSON:true}).then(function(res){
+                    this.tableData = res.body ;
+                   
+                },function(res){
+                    console.log(res.status);
+                    this.$message('请求页面失败');
+                });
+
+              }
+
+          },
+}
+
+
+
+var Ctor = Vue.extend(Main)
+new Ctor().$mount('#app')
+      </script>
+  </body>
+
+  
+  
+  
+
+</html>
