@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>VueLearn</title>
+    //引用外部vue
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+</head>
+
+<body>
+<div id="app">
+    <p>{{ title }}</p>
+    <ul>
+        <div>
+            <input type="text" v-model="city">
+            <input type="text" v-model="name">
+            <button @click='handleClick'>添加</button>
+        </div>
+    </ul>
+    <ul v-for="info in myInfo">
+        <input type="text" v-model="info.city" disabled readonly>
+        <input type="text" v-model="info.name" disabled readonly>
+    </ul>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            title: '测试动态添加',
+            city: '',
+            name: '',
+            info: '',
+            myInfo: []
+        },
+        mounted: function () {
+            this.getInfo();
+        },
+        methods: {
+            getInfo(){
+        this.info='[{"city":"curry","name":"我是盐城人"}]';
+        this.myInfo=JSON.parse(this.info);
+    },
+    handleClick() {
+        var str = {
+            city: this.city,
+            name: this.name
+        };
+        this.myInfo.push(str);
+
+        this.city = "";
+        this.name = "";
+        var str = JSON.stringify(this.myInfo);
+        console.log(str);
+    }
+    }
+    })
+</script>
+</body>
+
+</html>

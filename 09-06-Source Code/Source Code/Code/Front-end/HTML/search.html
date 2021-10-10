@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!--<link rel="stylesheet" href="css/works.css" type="text/css">-->
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
+    <title>学术检索</title>
+</head>
+<body style="margin: 0px;height: 100%;" >
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui@2.8.2/lib/index.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script src="js/jquery.cookie.js" type="text/javascript"></script>
+<div id="app" style="height: 100%;">
+    <!--导航栏-->
+    <el-menu
+            :default-active="activeIndex1"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"         
+            type="flex" justify="center"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b">
+        <el-menu-item index='1' style="width: 8%;min-width:150px;" @click.native="Reload_index">
+            <img src='./img/logo_max.png' style="width: 94px; height: 35px;"></el-menu-item>
+        <el-menu-item index="2" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" >学术检索</el-menu-item>
+        <el-menu-item index="3" style="min-width:150px;font-weight: bold; width: 8%; text-align: center" @click.native="goAuth">学者频道</el-menu-item>
+        <!--<el-menu-item index="4" style="min-width:500px;font-weight: bold; width: 40%; " >-->
+        <el-input  placeholder="请输入内容" v-model="input3" class="input-with-select" style="width: 45%; top: 10px;min-width: 400px;margin-left: 8px">
+            <el-select v-model="select" slot="prepend" >
+            <el-option label="摘要" value="1"></el-option>
+            <el-option label="标题" value="2"></el-option>
+            <el-option label="全文" value="3"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="search" type="primary" >搜索</el-button>
+        </el-input>
+        <!--用户!-->
+        <el-dropdown @command="handleCommand" style="float: right; right: 10px;top: 10px;text-align: center" trigger="click" >
+            <span class="el-dropdown-link" >
+              <el-image
+                      style="width: 40px; height: 40px;border-radius:50%;overflow: hidden;"
+                      :src="person_url"></el-image>
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown" >
+                  <el-dropdown-item command="a">{{user_op1}}</el-dropdown-item>
+                  <el-dropdown-item command="b">退出</el-dropdown-item>
+              </el-dropdown-menu>
+          </el-dropdown>
+    </el-menu>
+    <!--搜索栏-->
+    <div id="main_search" style="width:100%; height:100%;">
+        <div style="height: 8%"></div>
+        <div style="width:55%; margin: 0 auto">
+            <template>
+                <div v-loading="loading">
+                    <div>找到约{{info.length}}条相关结果:</div>
+                    <el-divider></el-divider>
+                    <div v-for="(value,index) in info.slice((currentPage- 1)*pagesize,currentPage*pagesize)"  >
+                        <div>
+                            <el-row>
+                                <el-link type="primary" v-html="value.title"  @click="checkDet(value.id)" style="font-size: 18px;font-weight: 400;"></el-link>
+                                <!--<div v-html="info[index].title"  @click="checkDet(index)" style="color:#409EFF;cursor:pointer;font-size: 18px;font-weight: 400;font-family: 'Helvetica Neue',Helvetica,Arial,'Microsoft YaHei','微软雅黑';"></div>-->
+                            </el-row>
+                            <el-row>
+                                <div v-html="value.abstract" style="color: #666"></div>
+                            </el-row>
+                            <el-row>
+                                <div>{{value.author}}&nbsp;&nbsp;&nbsp;&nbsp;-被引量:{{value.cited}}&nbsp;&nbsp;&nbsp;&nbsp;-时间:{{value.date}}</div>
+                            </el-row>
+                            <el-row>
+                                <el-tag >类型:{{value.type}}</el-tag>
+                                <el-tag >关键词:{{value.keyword}}</el-tag>
+                            </el-row>
+                        </div>
+                        <el-divider></el-divider>                      
+                    </div>
+                    <el-pagination
+                        layout="prev, pager, next"
+                        :page-size="pagesize"    
+                        :current-page="currentPage"
+                        :pager-count="5" 
+                        @current-change="handleCurrentChange"
+                        :total="info.length"                     
+                        > 
+                    </el-pagination>
+                </div>
+            </template>
+        </div>
+    </div>
+    <!--登录dialog-->
+    <el-dialog
+    title="登录"
+    :visible.sync="loginDialog"
+    :lock-scroll="false"
+    width="30%">
+    <span >
+        <el-tabs v-model="actTab" style="min-height: 320px;">
+            <el-tab-pane label="登录" name="first">
+                <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm2" style="width: 85%">
+                    <el-form-item label="用户名" prop="uName">
+                        <el-input v-model="ruleForm2.uName"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm2('ruleForm2')">登录</el-button>
+                      <el-button @click="resetForm('ruleForm2')">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="注册" name="second">
+                <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm" style="width: 85%">
+                    <el-form-item label="用户名" prop="age">
+                        <el-input v-model="ruleForm.age"></el-input>
+                      </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                      <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="checkPass">
+                      <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item >
+                      <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
+                      <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    </el-form-item>
+                  </el-form>
+            </el-tab-pane>
+        </el-tabs>
+    </span>
+</el-dialog>
+</div>
+<!--加载动画-->
+<div id="sys-loading" class=""><div class="spinner">
+        <div class="loader-inner line-scale-pulse-out-rapid">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        </div></div>
+
+</body>
+<style>
+    mark {
+        color:red;
+        background-color: white;
+        font-weight: bold;
+    }
+    body::-webkit-scrollbar {
+        width: 0px;
+    }
+    .el-select .el-input {
+        width: 130px;
+    }
+    .input-with-select .el-input-group__prepend {
+        background-color: #fff;
+    }
+    .el-dropdown-link {
+        cursor: pointer;
+        color: #409EFF;
+    }
+    .el-icon-arrow-down {
+        font-size: 0px;
+    }
+    .el-row {
+        margin-bottom: 20px;
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+        background: #d3dce6;
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        min-height: 36px;
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+    .allsources{
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        color:#3A66C8;
+    }
+</style>
+<script>
+    //加载动画
+    document.onreadystatechange = subSomething;
+    function subSomething() {
+        //当页面加载状态
+        if (document.readyState == "complete") {
+            //延迟一秒关闭loading
+            $('#sys-loading').delay(200).hide(0);
+            $('.spinner').delay(200).fadeOut('slow');
+        }
+    }
+    var vm = new Vue({
+        el: '#app',
+        data(){
+            //登录/注册的数据校验
+            var checkAge = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                        callback(new Error('用户名不能为空'));
+                    }
+                    else{
+                        callback();
+                    }
+                }, 500);
+            };
+            var validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            var validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.pass) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            var checkuName = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }
+                setTimeout(() => {
+                    if (!value) {
+                    callback(new Error('请输入用户名'));
+                    }  
+                    else {
+                        callback();
+                    }
+                }, 500);
+            };
+            var checkPass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                //登录注册提交的表单
+                ruleForm: {
+                    pass: '',
+                    checkPass: '',
+                    age: ''
+                },
+                rules: {
+                    pass: [{ validator: validatePass, trigger: 'blur' }],
+                    checkPass: [{ validator: validatePass2, trigger: 'blur' }],
+                    age: [{ validator: checkAge, trigger: 'blur' }]
+                },
+                ruleForm2: {
+                    pass: '',
+                    uName: ''
+                },
+                rules2: {
+                    pass: [{ validator: checkPass, trigger: 'blur' }],
+                    uName: [{ validator: checkuName, trigger: 'blur' }]
+                },
+                activeIndex1: '2',
+                input1: '',
+                input2: '',
+                input3: '',
+                select: "2",
+                selectAuth:"1",
+                person_url: './img/person_def.png', //用户头像链接
+                isAuthSearch: false,
+                user_op1:"登录", //点击用户之后弹出的选项
+                loginDialog: false, //控制登录的dialog
+                actTab:"first",
+                //testMessage:[],
+                searchId:0,
+                searchContent:'',
+                currentPage:1,
+                info:[],
+                pagesize:5,
+                loading:false
+            };
+        },
+        created() {  
+            //判断是否登录
+            if($.cookie('_UserId')!=null) {
+                this.user_op1="个人中心";
+                if($.cookie('_PersonUrl')!=null)
+                {
+                    this.person_url=$.cookie('_PersonUrl')
+                }   
+            }
+            else{
+                this.user_op1="登录";
+            }     
+            this.getInfo();
+        },
+        methods:{
+            //提交表单
+            submitForm2(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('login.php',{nickname:this.ruleForm2.uName,password:this.ruleForm2.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r.result==0)
+                                {
+                                    $.cookie('_UserName', this.ruleForm2.uName, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserId', r.id, { expires: 7 ,path: '/' });
+                                    $.cookie('_PersonUrl', r.avator, { expires: 7 ,path: '/' });
+                                    $.cookie('_UserType', r.type, { expires: 7 ,path: '/' });
+                                    $.cookie('_PassWord', this.ruleForm2.pass, { expires: 7 ,path: '/' });
+                                    this.user_op1="个人中心";
+                                    this.person_url=$.cookie('_PersonUrl') 
+                                    this.$message("登录成功")
+                                }
+                                else if(r.result==2)
+                                {
+                                    this.$message("密码错误")
+                                }
+                                else if(r.result==3)
+                                {
+                                    this.$message("用户已登录")
+                                }
+                                else if(r.result==1)
+                                {
+                                    this.$message("用户不存在")
+                                }
+                                else
+                                {
+                                    this.$message("登录失败，请检查网络状况后重新尝试")
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('登录失败')
+                        return false;
+                    }
+                });    
+                this.loginDialog=false;
+            },
+            //提交表单
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.$http.post('register.php',{nickname:this.ruleForm.age,password:this.ruleForm.pass},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                if(r==0)
+                                {
+                                    this.$message('注册成功');
+                                }
+                                else if(r==1)
+                                {
+                                    this.$message('用户名已存在');
+                                }
+                                else
+                                {
+                                    this.$message('注册失败，请检测网络状况后重新尝试');
+                                }
+                                this.$refs[formName].resetFields();
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    } else {
+                        this.$message('注册信息不全');
+                        return false;
+                    }
+                });              
+                this.loginDialog=false;
+            },
+            //清空表单
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            createPerson: function(){
+                this.people.push(this.newPerson);
+                // 添加完newPerson对象后，重置newPerson对象
+                this.newPerson = {name: '', age: 0, sex: 'Male'}
+            },
+            getInfo(){
+                this.loading=true
+                var u=decodeURI(location.search);
+                if(u.indexOf("?")>-1){
+                    var paraStr=u.split("?")[1];
+                    var paraItems=paraStr.split("&");
+                    if(paraItems.length==2)
+                    {
+                        this.searchId=parseInt(paraItems[0].split("=")[1]);
+                        this.searchContent=paraItems[1].split("=")[1].trim()
+                        this.$http.post('solrSearch.php',{content:this.searchContent,type:this.searchId+2},{emulateJSON:true}).then(       
+                            function(res){
+                                this.info=res.body;
+                                for(i=0;i<this.info.length;i++)
+                                {
+                                    str=this.htmlEscape(this.info[i].title)
+                                    this.info[i].title='<p>'+str+'</p>'
+                                    stra=this.htmlEscape(this.info[i].abstract)
+                                    this.info[i].abstract='<p>'+stra+'</p>'
+                                    if(this.info[i].author=="")
+                                        this.info[i].author="佚名"
+                                    if(this.info[i].type==1)
+                                        this.info[i].type='论文'
+                                    if(this.info[i].keyword!=null)
+                                    {
+                                        if(this.info[i].keyword.length>50)
+                                        {
+                                            this.info[i].keyword=this.info[i].keyword.substring(0,50)+'...'
+                                        }
+                                    }
+                                }
+                                this.loading=false
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    }
+                    else
+                    {
+                        this.$message('URL错误', '警告', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                window.location.href="index.html";
+                            }
+                        });
+                    }
+                }else{
+                    this.$message('没有搜索内容', '警告', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            window.location.href="index.html";
+                        }
+                    });
+                }
+                this.input3=this.searchContent;
+                //this.loading=false
+            },
+            goAuth(){
+                u="searchAuth.html?content="+this.searchContent;
+                window.location.href=encodeURI(u);
+            },
+            handleSelect: function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            //点击用户头像
+            handleCommand: function(command) {
+                if(command=='a')
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //跳转到个人中心
+                        if($.cookie('_UserType')=="3")
+                            window.location.href="checkAuth.html"; 
+                        else
+                            window.location.href="personal_index.html"; 
+                    }
+                    else
+                    {
+                        this.loginDialog=true;
+                    }
+                }
+                else
+                {
+                    if($.cookie('_UserId')!=null)
+                    {
+                        //logout
+                        this.$http.post('logout.php',{userId:$.cookie('_UserId'),},{emulateJSON:true}).then(       
+                            function(res){
+                                var r=res.body;
+                                console.log(r);
+                                if(r==0)
+                                {
+                                    this.$message('退出登录');
+                                    $.removeCookie('_UserId' ,{path:'/'});
+                                    $.removeCookie('_UserName' ,{path:'/'});
+                                    $.removeCookie('_PassWord' ,{path:'/'});
+                                    $.removeCookie('_UserType' ,{path:'/'});
+                                    $.removeCookie('_PersonUrl' ,{path:'/'});
+                                    this.person_url='./img/person_def.png';
+                                    this.user_op1='登录'
+                                }
+                                else
+                                {
+                                    this.$message('操作失败，请检测网络状况后重新尝试');
+                                }
+                            },
+                            function(res){console.log(res.status);}
+                        );
+                    }
+                    else
+                    {
+                        this.$message("未登录")
+                    }
+                    
+                }
+            },
+            handleClick1: function(tab, event) {
+                console.log(tab, event);
+            },
+            handleClick2: function(tab, event) {
+                console.log(tab, event);
+            },
+            Reload_index: function(){
+                window.location.href="index.html";
+            },
+            htmlEscape(str) {
+                if(str==null)
+                    return
+                str=str.replace(/&lt;/g,"<")
+                str=str.replace(/&gt;/g,">")
+                return str
+            },
+            handleCurrentChange(currentPage){  //改变当前页
+                this.currentPage = currentPage
+            },
+            checkDet(id){
+                u="works.html?PID="+id;
+                window.location.href=encodeURI(u);
+                console.log(u)
+                //this.$message("查看的论文id为："+this.info[index].id)
+            },
+            search:function(){
+                //发送get请求
+                if(this.input3.trim()=="")
+                {
+                    this.$message('输入内容为空');
+                    return;
+                }
+                this.searchContent=this.input3.trim();
+                this.searchId=parseInt(this.select);
+                u="search.html?id="+this.select+"&content="+this.input3.trim()
+                //location.search="?id="+this.select+"&content="+this.input3.trim();
+                history.replaceState({status: 0}, "", u);
+                this.getInfo()
+                this.currentPage=1
+            }
+        }
+    })
+</script>
+
+</html>
